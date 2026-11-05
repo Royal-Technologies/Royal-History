@@ -170,21 +170,54 @@
       <h3 style="color:var(--gold); margin-bottom:8px; font-size:19px;">🖼️ লাইভ কার্ড প্রিভিউ ও কাস্টমাইজার</h3>
       <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">যেকোনো থিম নির্বাচন করে সরাসরি ১০৮০×১০৮০ পোস্ট কার্ড ডাউনলোড করুন</p>
 
-      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; align-items:center;">
-        <label style="font-size:13px; font-weight:600; color:var(--text-muted);">থিম:</label>
-        <select id="previewThemeSelect" style="padding:6px 12px; background:var(--soft-bg); border:1px solid var(--card-border); color:var(--text); border-radius:8px; font-size:13px;">
-          <option value="vintage-parchment">📜 প্রাচীন পাণ্ডুলিপি (Vintage Parchment)</option>
-          <option value="independence-emerald">🇧🇩 স্বাধীনতা ও ঐতিহ্য (Independence Emerald)</option>
-          <option value="archival-gold" selected>🏛️ রাজকীয় মহাফেজখানা (Archival Gold)</option>
-          <option value="imperial-maroon">👑 ঐতিহাসিক রক্তিম আভা (Imperial Maroon)</option>
-          <option value="midnight-charcoal">🌑 ক্ল্যাসিক গ্রাফাইট (Midnight Charcoal)</option>
-          <option value="antique-bronze">🥉 অ্যান্টিক ব্রোঞ্জ (Antique Bronze)</option>
-          <option value="sapphire-epoch">🌌 নীলকান্ত ইতিহাস (Sapphire Epoch)</option>
-          <option value="terracotta-heritage">🧱 টেরাকোটা ও প্রত্নতত্ত্ব (Terracotta Heritage)</option>
-          <option value="desert-monument">🏜️ মরুভূমির ভাস্কর্য (Desert Monument)</option>
-          <option value="classic-ivory">📄 শুভ্র আইভরি আর্কাইভ (Classic Ivory)</option>
-        </select>
-        <button id="btnRandomTheme" class="btn btn-glass" style="padding:5px 12px; font-size:12px;">🎲 র‍্যান্ডম থিম</button>
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; align-items:center;">
+        <div style="display:inline-flex; align-items:center; gap:6px;">
+          <label style="font-size:12.5px; font-weight:600; color:var(--text-muted);">ডিজাইন ফ্রেম:</label>
+          <select id="previewLayoutSelect" style="padding:6px 12px; background:var(--soft-bg); border:1px solid var(--card-border); color:var(--text); border-radius:8px; font-size:13px; max-width:240px;">
+            <optgroup label="🏛️ ১০টি আর্কিটেকচারাল ফ্রেম">
+              <option value="kiswah-gold-ribbon" selected>১. রাজকীয় স্বর্ণলতা ফিতা (Gold Ribbon)</option>
+              <option value="mihrab-arch">২. মেহরাব আর্চ তোরণ (Mihrab Arch)</option>
+              <option value="royal-minimal">৩. রাজকীয় মিনিমাল (Royal Minimal)</option>
+              <option value="geometric-mandala">৪. জ্যামিতিক রজেট (Sacred Rosette)</option>
+              <option value="illuminated-manuscript">৫. প্রাচীন পাণ্ডুলিপি (Manuscript)</option>
+              <option value="iznik-tiles">৬. অটোমান ইজনিক টাইলস (Iznik Border)</option>
+              <option value="architectural-pillars">৭. রাজকীয় স্তম্ভ ও তোরণ (Twin Pillars)</option>
+              <option value="celestial-crescent">৮. হিলাল ও গ্যালাক্সি (Celestial Crescent)</option>
+              <option value="alhambra-palace">৯. আন্দালুসীয় আলহামব্রা (Alhambra Arabesque)</option>
+              <option value="octagram-medallion">১০. আটকোণা মেডেলিয়ন (Octagram Seal)</option>
+            </optgroup>
+            <optgroup label="🌄 ১০টি শৈল্পিক সিনিক ব্যাকগ্রাউন্ড">
+              <option value="scenic-mountain-twilight">১১. গোধূলি বেলার পাহাড় (Mountain Twilight)</option>
+              <option value="scenic-kaaba-parchment">১২. ভিন্টেজ কাবা পাণ্ডুলিপি (Kaaba Vintage)</option>
+              <option value="scenic-rehal-quran">১৩. কাঠের রেহাল ও গ্রন্থ স্টুডিও (Rehal Studio)</option>
+              <option value="scenic-desert-stars">১৪. তারকাময় মরুভূমি (Desert Dunes & Stars)</option>
+              <option value="scenic-golden-clouds">১৫. সোনালী সূর্যাস্ত মেঘমালা (Golden Clouds)</option>
+              <option value="scenic-mosque-dusk">১৬. গোধূলি মনুমেন্ট ও গম্বুজ (Dome at Dusk)</option>
+              <option value="scenic-medina-sanctuary">১৭. শ্যামলিম প্রাঙ্গণ (Emerald Sanctuary)</option>
+              <option value="scenic-alabaster-gold">১৮. শুভ্র আইভরি ও সোনা (Alabaster Gold)</option>
+              <option value="scenic-crimson-horizon">১৯. রক্তিম দামেস্ক দিগন্ত (Crimson Horizon)</option>
+              <option value="scenic-kiswah-night">২০. কাবার কালো রেশম (Kiswah Midnight)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div style="display:inline-flex; align-items:center; gap:6px;">
+          <label style="font-size:12.5px; font-weight:600; color:var(--text-muted);">কালার থিম:</label>
+          <select id="previewThemeSelect" style="padding:6px 12px; background:var(--soft-bg); border:1px solid var(--card-border); color:var(--text); border-radius:8px; font-size:13px; max-width:220px;">
+            <option value="royal-emerald">১. পান্না সবুজ (Royal Emerald)</option>
+            <option value="midnight-navy">২. গভীর নীলকান্ত (Midnight Navy)</option>
+            <option value="imperial-black">৩. ক্ল্যাসিক ব্ল্যাক (Imperial Black)</option>
+            <option value="warm-parchment">৪. ভিন্টেজ পার্চমেন্ট (Warm Parchment)</option>
+            <option value="royal-maroon">৫. দামেস্ক ভেলভেট লাল (Royal Maroon)</option>
+            <option value="ottoman-turquoise">৬. অটোমান ফিরোজা (Ottoman Turquoise)</option>
+            <option value="desert-amber">৭. মরুভূমির অ্যাম্বার (Desert Amber)</option>
+            <option value="amethyst-violet">৮. আত্মিক বেগুনি (Amethyst Violet)</option>
+            <option value="andalusian-mihrab">৯. কর্ডোবা স্থাপত্য গোল্ড (Andalusian Mihrab)</option>
+            <option value="classic-ivory">১০. শুভ্র আইভরি পেপার (Classic Ivory)</option>
+          </select>
+        </div>
+
+        <button id="btnRandomTheme" class="btn btn-glass" style="padding:5px 12px; font-size:12px;">🎲 র‍্যান্ডম কম্বিনেশন (২০০টি ডিজাইন)</button>
       </div>
 
       <div class="preview-canvas-wrap">

@@ -12,7 +12,8 @@
   let currentCategory = 'all';
   let todayHistory = null;
   let activePreviewItem = null;
-  let currentPreviewTheme = 'archival-gold';
+  let currentPreviewLayout = 'kiswah-gold-ribbon';
+  let currentPreviewTheme = 'royal-emerald';
   let activeShareBlob = null;
 
   function toBengaliDigits(num) {
@@ -381,21 +382,27 @@ ${item.description && item.description !== item.summary ? `📖 বিস্ত�
 #RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #RoyalTechnologies #ইতিহাসেরএইদিনে`;
   }
 
-  // ── 5. Live Card Preview & Customizer Modal ──
+  // ── 5. Live Card Preview & Customizer Modal (20 Layouts × 10 Themes) ──
   function openPreviewModal(item) {
     activePreviewItem = item;
     const modal = document.getElementById('previewModal');
     if (!modal) return;
 
+    const layoutSelect = document.getElementById('previewLayoutSelect');
+    if (layoutSelect) {
+      if (item.layout) currentPreviewLayout = item.layout;
+      layoutSelect.value = currentPreviewLayout;
+    }
+
     const themeSelect = document.getElementById('previewThemeSelect');
     if (themeSelect) {
-      if (item.category === 'bangladesh') currentPreviewTheme = 'independence-emerald';
-      else if (item.category === 'world') currentPreviewTheme = 'archival-gold';
-      else currentPreviewTheme = 'vintage-parchment';
+      if (item.theme) currentPreviewTheme = item.theme;
+      else if (item.category === 'bangladesh') currentPreviewTheme = 'royal-emerald';
+      else if (item.category === 'world') currentPreviewTheme = 'midnight-navy';
       themeSelect.value = currentPreviewTheme;
     }
 
-    renderPreviewCanvas(item, currentPreviewTheme);
+    renderPreviewCanvas(item, currentPreviewLayout, currentPreviewTheme);
     modal.classList.add('open');
   }
 
@@ -404,11 +411,11 @@ ${item.description && item.description !== item.summary ? `📖 বিস্ত�
     if (modal) modal.classList.remove('open');
   }
 
-  function renderPreviewCanvas(item, themeKey) {
+  function renderPreviewCanvas(item, layoutKey, themeKey) {
     const canvas = document.getElementById('previewCanvas');
     if (!canvas || !window.HistoryCardTemplate) return;
 
-    window.HistoryCardTemplate.renderCard(canvas, item, { theme: themeKey });
+    window.HistoryCardTemplate.renderCard(canvas, item, { layout: layoutKey, theme: themeKey });
 
     // Prepare blob for sharing
     canvas.toBlob(blob => {
@@ -492,25 +499,39 @@ ${item.description && item.description !== item.summary ? `📖 বিস্ত�
       if (el) el.addEventListener('change', applyFilters);
     });
 
-    // Preview Modal Theme Select
+    // Preview Modal Layout & Theme Select
+    const layoutSelect = document.getElementById('previewLayoutSelect');
+    if (layoutSelect) {
+      layoutSelect.addEventListener('change', (e) => {
+        currentPreviewLayout = e.target.value;
+        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewLayout, currentPreviewTheme);
+      });
+    }
+
     const themeSelect = document.getElementById('previewThemeSelect');
     if (themeSelect) {
       themeSelect.addEventListener('change', (e) => {
         currentPreviewTheme = e.target.value;
-        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewTheme);
+        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewLayout, currentPreviewTheme);
       });
     }
 
-    // Random Theme Button
+    // Random Combo Button (20 Layouts × 10 Themes = 200 Combos)
     const btnRandomTheme = document.getElementById('btnRandomTheme');
     if (btnRandomTheme) {
       btnRandomTheme.addEventListener('click', () => {
         if (!window.HistoryCardTemplate) return;
-        const keys = window.HistoryCardTemplate.THEME_KEYS || Object.keys(window.HistoryCardTemplate.THEMES || {});
-        currentPreviewTheme = keys[Math.floor(Math.random() * keys.length)];
+        const layouts = window.HistoryCardTemplate.LAYOUT_KEYS || Object.keys(window.HistoryCardTemplate.LAYOUTS || {});
+        const themes = window.HistoryCardTemplate.THEME_KEYS || Object.keys(window.HistoryCardTemplate.THEMES || {});
+
+        currentPreviewLayout = layouts[Math.floor(Math.random() * layouts.length)];
+        currentPreviewTheme = themes[Math.floor(Math.random() * themes.length)];
+
+        if (layoutSelect) layoutSelect.value = currentPreviewLayout;
         if (themeSelect) themeSelect.value = currentPreviewTheme;
-        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewTheme);
-        showToast('🎲 নতুন র‍্যান্ডম হিস্টোরিক্যাল থিম রেন্ডার হয়েছে!');
+
+        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewLayout, currentPreviewTheme);
+        showToast('🎲 নতুন র‍্যান্ডম ডিজাইন ও কালার কম্বিনেশন রেন্ডার হয়েছে!');
       });
     }
 

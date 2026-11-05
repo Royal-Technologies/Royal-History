@@ -45,6 +45,7 @@ function getArg(name, defaultValue = null) {
 const isPreview = args.includes('--preview');
 const forcedCategory = getArg('category', process.env.HISTORY_CATEGORY || null);
 const forcedTheme = getArg('theme', process.env.HISTORY_THEME || null);
+const forcedLayout = getArg('layout', process.env.HISTORY_LAYOUT || null);
 const forcedUid = getArg('uid', null);
 
 // ── 3. Date & Intelligence (Asia/Dhaka) ──
@@ -96,28 +97,28 @@ events.forEach((ev, i) => {
   console.log(`  ${i + 1}. [${ev.event_year_display || ev.event_year}] ${ev.title} (${ev.category})`);
 });
 
-// ── 5. Smart Theme Selection ──
-let selectedTheme = forcedTheme;
-if (!selectedTheme) {
-  // If Bangladesh category is represented, prioritize emerald or archival
-  const hasBD = events.some(e => e.category === 'bangladesh');
-  if (hasBD) {
-    const bdThemes = ['independence-emerald', 'archival-gold', 'terracotta-heritage', 'vintage-parchment', 'imperial-maroon'];
-    const idx = (currentDay + events[0].id) % bdThemes.length;
-    selectedTheme = bdThemes[idx];
-  } else {
-    const allThemes = Object.keys(HistoryCardTemplate.THEMES);
-    const idx = (currentDay + events[0].id) % allThemes.length;
-    selectedTheme = allThemes[idx];
-  }
+// ── 5. Smart Layout & Theme Selection (20 Layouts × 10 Themes) ──
+let selectedLayout = forcedLayout;
+if (!selectedLayout) {
+  const allLayouts = HistoryCardTemplate.LAYOUT_KEYS;
+  const idx = (currentDay + events[0].id) % allLayouts.length;
+  selectedLayout = allLayouts[idx];
 }
 
+let selectedTheme = forcedTheme;
+if (!selectedTheme) {
+  const allThemes = HistoryCardTemplate.THEME_KEYS;
+  const idx = (currentDay + events[0].id) % allThemes.length;
+  selectedTheme = allThemes[idx];
+}
+
+console.log(`[Royal History] Applied Layout: ${selectedLayout}`);
 console.log(`[Royal History] Applied Theme: ${selectedTheme}`);
 
 // ── 6. Render Card Canvas (Multi-Event Layout) ──
 const canvas = createCanvas(1080, 1080);
 const dateText = events[0].event_date || `${currentDay} তারিখ`;
-HistoryCardTemplate.renderCard(canvas, { events, dateText }, { theme: selectedTheme, dateText });
+HistoryCardTemplate.renderCard(canvas, { events, dateText }, { layout: selectedLayout, theme: selectedTheme, dateText });
 
 // ── 7. Generate Unique Card ID and Paths ──
 const cardsDir = path.join(rootDir, 'cards');
@@ -179,6 +180,7 @@ const metadata = {
   eventDate: dateText,
   title: events[0].title,
   summary: events[0].summary,
+  layout: selectedLayout,
   theme: selectedTheme,
   caption: caption,
   imageUrl: 'https://royal-technologies.github.io/Royal-History/cards/today.png',
@@ -202,7 +204,7 @@ if (!isPreview) {
     eventYear: events[0].event_year,
     title: `${events.length}টি ঘটনা (${dateText})`,
     theme: selectedTheme,
-    layout: 'multi-event-archival',
+    layout: selectedLayout,
     imagePath: `cards/${cardId}.png`,
     jsonPath: 'cards/today.json',
     caption: caption
