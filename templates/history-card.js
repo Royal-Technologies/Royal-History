@@ -1057,13 +1057,13 @@
         maxSummaryLines = 4;
       }
 
-      // 1. Badge Row (Year Pill + Category & Type)
+      // 1. Year Pill (সালের পিল)
       const pillTopY = slotY + (numEvents >= 4 ? 8 : 12);
       ctx.save();
       ctx.font = `bold ${yrFontSize}px "Hind Siliguri", sans-serif`;
 
       const yrMetrics = ctx.measureText(yearPillText);
-      const yrW = yrMetrics.width + 24;
+      const yrW = yrMetrics.width + 22;
       const startX = W / 2 - (contentMaxW / 2);
 
       ctx.fillStyle = theme.badgeBg;
@@ -1079,11 +1079,45 @@
       ctx.textBaseline = 'middle';
       ctx.fillText(yearPillText, startX + yrW / 2, pillTopY + yrH / 2);
 
+      // 2. Category Pill: বাংলাদেশ এক কালার, বিশ্ব অন্য কালার
+      const isBangladesh = (ev.category === 'bangladesh');
+      const catText = isBangladesh ? 'বাংলাদেশ' : 'বিশ্ব ইতিহাস';
+      const catMetrics = ctx.measureText(catText);
+      const catW = catMetrics.width + 22;
+      const catX = startX + yrW + 10;
+
+      // থিম অনুযায়ী ডায়নামিক কালার স্কিম (ডার্ক ও লাইট উভয় থিমে নিখুঁত বৈসাদৃশ্য)
+      const isDarkTheme = theme.isDark !== false;
+      const catBg = isBangladesh 
+        ? (isDarkTheme ? 'rgba(16, 185, 129, 0.22)' : 'rgba(5, 150, 105, 0.16)')
+        : (isDarkTheme ? 'rgba(14, 165, 233, 0.22)' : 'rgba(2, 132, 199, 0.16)');
+      const catBorder = isBangladesh
+        ? (isDarkTheme ? 'rgba(52, 211, 153, 0.70)' : 'rgba(5, 150, 105, 0.65)')
+        : (isDarkTheme ? 'rgba(56, 189, 248, 0.70)' : 'rgba(2, 132, 199, 0.65)');
+      const catColor = isBangladesh
+        ? (isDarkTheme ? '#34D399' : '#047857')
+        : (isDarkTheme ? '#38BDF8' : '#0284C7');
+
+      ctx.fillStyle = catBg;
+      ctx.strokeStyle = catBorder;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.roundRect(catX, pillTopY, catW, yrH, yrH / 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = catColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(catText, catX + catW / 2, pillTopY + yrH / 2);
+
+      // 3. তারপরে ধরন (Followed by Event Type)
+      const typeX = catX + catW + 12;
       ctx.font = `600 ${yrFontSize}px "Hind Siliguri", sans-serif`;
       ctx.fillStyle = theme.metaColor;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`•   ${catLabel}   •   ${typeLabel}`, startX + yrW + 14, pillTopY + yrH / 2);
+      ctx.fillText(`•   ${typeLabel}`, typeX, pillTopY + yrH / 2);
       ctx.restore();
 
       // 2. Title (with generous vertical padding below the pill, explicit top baseline)
