@@ -173,7 +173,7 @@ ${eventsCaptionText.trim()}
 
 ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
 
-#RoyalTechnologies #RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে`;
+#RoyalTechnologies #RoyalHistory #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে`;
 
 const metadata = {
   cardId: cardId,

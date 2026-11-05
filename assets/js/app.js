@@ -396,7 +396,7 @@
 
 ${item.description && item.description !== item.summary ? `📖 বিস্তারিত ইতিহাস:\n${item.description}\n\n` : ''}${item.significance ? `✨ ঐতিহাসিক তাৎপর্য: ${item.significance}\n\n` : ''}${item.location ? `📍 স্থান: ${item.location}\n\n` : ''}ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
 
-#RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #RoyalTechnologies #ইতিহাসেরএইদিনে`;
+#RoyalHistory #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #RoyalTechnologies #ইতিহাসেরএইদিনে`;
   }
 
   // ── 5. Live Card Preview & Customizer Modal (20 Layouts × 10 Themes) ──
