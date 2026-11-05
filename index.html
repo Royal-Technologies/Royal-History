@@ -138,11 +138,22 @@
         </div>
       </div>
 
-      <!-- Category Filter Pills -->
-      <div class="category-pills">
-        <button class="pill-btn active" data-category="all">সবগুলো অধ্যায়</button>
-        <button class="pill-btn" data-category="bangladesh">🇧🇩 বাংলাদেশ ইতিহাস</button>
-        <button class="pill-btn" data-category="world">🌍 বিশ্ব ইতিহাস</button>
+      <!-- Category Filter Pills & Sort Selector -->
+      <div class="category-pills" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="pill-btn active" data-category="all">সবগুলো অধ্যায়</button>
+          <button class="pill-btn" data-category="bangladesh">🇧🇩 বাংলাদেশ ইতিহাস</button>
+          <button class="pill-btn" data-category="world">🌍 বিশ্ব ইতিহাস</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label for="sortSelect" style="font-size:13px; color:var(--text-muted); font-weight:600;">ক্রমানুসার:</label>
+          <select id="sortSelect" style="padding:7px 12px; background:var(--card-bg); border:1px solid var(--card-border); color:var(--gold); border-radius:8px; font-family:'Hind Siliguri', sans-serif; font-size:13px; font-weight:600; cursor:pointer;">
+            <option value="year_desc" selected>⚡ সর্বশেষ ঘটনা প্রথমে (নতুন থেকে পুরোনো)</option>
+            <option value="year_asc">📜 প্রাচীন ঘটনা প্রথমে (পুরোনো থেকে নতুন)</option>
+            <option value="date_asc">📅 ক্যালেন্ডার তারিখ অনুযায়ী (১ জানুয়ারি ➔ ৩১ ডিসেম্বর)</option>
+            <option value="id_desc">🆕 আইডি ক্রমানুসারে (সর্বশেষ যুক্ত ঘটনা)</option>
+          </select>
+        </div>
       </div>
     </div>
 

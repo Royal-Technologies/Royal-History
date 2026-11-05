@@ -324,7 +324,7 @@ function deleteItem(id) {
  */
 function exportToJson() {
   const db = getDb();
-  const items = db.prepare('SELECT * FROM royal_history_items WHERE is_active = 1 ORDER BY target_month ASC, target_day ASC, event_year DESC').all();
+  const items = db.prepare('SELECT * FROM royal_history_items WHERE is_active = 1 ORDER BY event_year DESC, target_month DESC, target_day DESC').all();
   fs.writeFileSync(itemsJsonPath, JSON.stringify(items, null, 2), 'utf8');
 }
 

@@ -253,6 +253,29 @@
       return true;
     });
 
+    // শর্টিং: ডিফল্টভাবে সর্বশেষ ঘটনা প্রথমে (সবচেয়ে সাম্প্রতিক বছর শীর্ষে)
+    const sortSelect = document.getElementById('sortSelect');
+    const sortBy = sortSelect ? sortSelect.value : 'year_desc';
+
+    filteredEvents.sort((a, b) => {
+      if (sortBy === 'year_desc') {
+        if (b.event_year !== a.event_year) return b.event_year - a.event_year;
+        if (b.target_month !== a.target_month) return b.target_month - a.target_month;
+        return b.target_day - a.target_day;
+      } else if (sortBy === 'year_asc') {
+        if (a.event_year !== b.event_year) return a.event_year - b.event_year;
+        if (a.target_month !== b.target_month) return a.target_month - b.target_month;
+        return a.target_day - b.target_day;
+      } else if (sortBy === 'date_asc') {
+        if (a.target_month !== b.target_month) return a.target_month - b.target_month;
+        if (a.target_day !== b.target_day) return a.target_day - b.target_day;
+        return b.event_year - a.event_year;
+      } else if (sortBy === 'id_desc') {
+        return b.id - a.id;
+      }
+      return 0;
+    });
+
     renderEventsGrid(filteredEvents);
   }
 
@@ -487,7 +510,7 @@ ${item.description && item.description !== item.summary ? `📖 বিস্ত�
     });
 
     // Inputs
-    ['searchInput', 'monthSelect', 'daySelect', 'typeSelect'].forEach(id => {
+    ['searchInput', 'monthSelect', 'daySelect', 'typeSelect', 'sortSelect'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('input', applyFilters);
       if (el) el.addEventListener('change', applyFilters);
