@@ -649,6 +649,7 @@
 
   return {
     THEMES,
+    THEME_KEYS: Object.keys(THEMES),
     toBengaliDigits,
     renderCard,
     wrapText,

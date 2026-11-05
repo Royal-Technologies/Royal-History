@@ -491,13 +491,70 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
-  max-width: 800px;
+  max-width: 600px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 92vh;
   overflow-y: auto;
-  padding: 32px;
+  padding: 24px 28px;
   position: relative;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.modal-box {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  max-width: 540px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 20px 24px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.preview-canvas-wrap {
+  width: 100%;
+  max-width: 440px;
+  margin: 14px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  background: #000;
+  aspect-ratio: 1 / 1;
+}
+
+.preview-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.card-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.12);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.card-sig-box {
+  font-size: 13.5px;
+  color: var(--gold-light);
+  background: var(--soft-bg);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 3px solid var(--gold);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.card-ref-box {
+  font-size: 12.5px;
+  color: var(--text-muted);
 }
 
 .modal-close {

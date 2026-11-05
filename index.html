@@ -93,25 +93,31 @@
 
     <!-- ── Filter & Search Bar ── -->
     <div class="tools-bar">
-      <div class="filter-grid-row">
+      <div class="filter-grid-row" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
         <div class="input-group">
           <input type="text" id="searchInput" placeholder="🔍 শিরোনাম, সাল, বিষয় বা কীওয়ার্ড দিয়ে খুঁজুন...">
         </div>
         <div class="input-group">
           <select id="monthSelect">
             <option value="0">সকল মাস</option>
-            <option value="1">জানুয়ারি</option>
-            <option value="2">ফেব্রুয়ারি</option>
-            <option value="3">মার্চ</option>
-            <option value="4">এপ্রিল</option>
-            <option value="5">মে</option>
-            <option value="6">জুন</option>
-            <option value="7">জুলাই</option>
-            <option value="8">আগস্ট</option>
-            <option value="9">সেপ্টেম্বর</option>
-            <option value="10">অক্টোবর</option>
-            <option value="11">নভেম্বর</option>
-            <option value="12">ডিসেম্বর</option>
+            <option value="1">১ - জানুয়ারি</option>
+            <option value="2">২ - ফেব্রুয়ারি</option>
+            <option value="3">৩ - মার্চ</option>
+            <option value="4">৪ - এপ্রিল</option>
+            <option value="5">৫ - মে</option>
+            <option value="6">৬ - জুন</option>
+            <option value="7">৭ - জুলাই</option>
+            <option value="8">৮ - আগস্ট</option>
+            <option value="9">৯ - সেপ্টেম্বর</option>
+            <option value="10">১০ - অক্টোবর</option>
+            <option value="11">১১ - নভেম্বর</option>
+            <option value="12">১২ - ডিসেম্বর</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <select id="daySelect">
+            <option value="0">সকল দিন (তারিখ)</option>
+            <option value="1">১ তারিখ</option><option value="2">২ তারিখ</option><option value="3">৩ তারিখ</option><option value="4">৪ তারিখ</option><option value="5">৫ তারিখ</option><option value="6">৬ তারিখ</option><option value="7">৭ তারিখ</option><option value="8">৮ তারিখ</option><option value="9">৯ তারিখ</option><option value="10">১০ তারিখ</option><option value="11">১১ তারিখ</option><option value="12">১২ তারিখ</option><option value="13">১৩ তারিখ</option><option value="14">১৪ তারিখ</option><option value="15">১৫ তারিখ</option><option value="16">১৬ তারিখ</option><option value="17">১৭ তারিখ</option><option value="18">১৮ তারিখ</option><option value="19">১৯ তারিখ</option><option value="20">২০ তারিখ</option><option value="21">২১ তারিখ</option><option value="22">২২ তারিখ</option><option value="23">২৩ তারিখ</option><option value="24">২৪ তারিখ</option><option value="25">২৫ তারিখ</option><option value="26">২৬ তারিখ</option><option value="27">২৭ তারিখ</option><option value="28">২৮ তারিখ</option><option value="29">২৯ তারিখ</option><option value="30">৩০ তারিখ</option><option value="31">৩১ তারিখ</option>
           </select>
         </div>
         <div class="input-group">
@@ -145,27 +151,65 @@
     </section>
   </main>
 
-  <!-- ── Event Details Modal ── -->
-  <div id="eventModal" class="modal-overlay">
-    <div class="modal-content">
-      <button id="modalClose" class="modal-close">&times;</button>
-      <div class="badge-row" style="margin-bottom:14px;">
-        <span id="modalCategory" class="badge badge-gold">ক্যাটাগরি</span>
-        <span id="modalYear" class="badge badge-emerald">সাল</span>
-      </div>
-      <h2 id="modalTitle" style="font-size:24px; margin-bottom:16px;">...</h2>
-      
-      <div id="modalSummary" style="background:var(--soft-bg); padding:16px; border-radius:10px; border-left:4px solid var(--gold); margin-bottom:18px; font-weight:500;">...</div>
-      <div id="modalDesc" style="color:var(--text); line-height:1.75; margin-bottom:18px;">...</div>
-      
-      <div style="margin-bottom:20px; font-size:14px; color:var(--text-muted); display:flex; flex-direction:column; gap:6px;">
-        <div id="modalSignificance"></div>
-        <div id="modalLocation"></div>
-        <div id="modalRef"></div>
+  <!-- ── Card Customizer Modal (Live Canvas Generator) ── -->
+  <div id="previewModal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" id="previewModalClose">&times;</button>
+      <h3 style="color:var(--gold); margin-bottom:8px; font-size:19px;">🖼️ লাইভ কার্ড প্রিভিউ ও কাস্টমাইজার</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">যেকোনো থিম নির্বাচন করে সরাসরি ১০৮০×১০৮০ পোস্ট কার্ড ডাউনলোড করুন</p>
+
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; align-items:center;">
+        <label style="font-size:13px; font-weight:600; color:var(--text-muted);">থিম:</label>
+        <select id="previewThemeSelect" style="padding:6px 12px; background:var(--soft-bg); border:1px solid var(--card-border); color:var(--text); border-radius:8px; font-size:13px;">
+          <option value="vintage-parchment">📜 প্রাচীন পাণ্ডুলিপি (Vintage Parchment)</option>
+          <option value="independence-emerald">🇧🇩 স্বাধীনতা ও ঐতিহ্য (Independence Emerald)</option>
+          <option value="archival-gold" selected>🏛️ রাজকীয় মহাফেজখানা (Archival Gold)</option>
+          <option value="imperial-maroon">👑 ঐতিহাসিক রক্তিম আভা (Imperial Maroon)</option>
+          <option value="midnight-charcoal">🌑 ক্ল্যাসিক গ্রাফাইট (Midnight Charcoal)</option>
+          <option value="antique-bronze">🥉 অ্যান্টিক ব্রোঞ্জ (Antique Bronze)</option>
+          <option value="sapphire-epoch">🌌 নীলকান্ত ইতিহাস (Sapphire Epoch)</option>
+          <option value="terracotta-heritage">🧱 টেরাকোটা ও প্রত্নতত্ত্ব (Terracotta Heritage)</option>
+          <option value="desert-monument">🏜️ মরুভূমির ভাস্কর্য (Desert Monument)</option>
+          <option value="classic-ivory">📄 শুভ্র আইভরি আর্কাইভ (Classic Ivory)</option>
+        </select>
+        <button id="btnRandomTheme" class="btn btn-glass" style="padding:5px 12px; font-size:12px;">🎲 র‍্যান্ডম থিম</button>
       </div>
 
-      <div style="display:flex; gap:12px; justify-content:flex-end; border-top:1px solid var(--card-border); padding-top:16px;">
-        <button id="btnCopyModalCaption" class="btn btn-gold">📋 ক্যাপশন কপি করুন</button>
+      <div class="preview-canvas-wrap">
+        <canvas id="previewCanvas" width="1080" height="1080"></canvas>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:14px;">
+        <button id="btnDownloadPreview" class="btn btn-gold">📥 ডাউনলোড ১০৮০×১০৮০ PNG</button>
+        <button id="btnSharePreview" class="btn btn-emerald">📤 শেয়ার করুন</button>
+        <button id="btnCopyPreviewCaption" class="btn btn-glass" style="color:var(--text); border-color:var(--card-border);">📋 ক্যাপশন কপি</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Share Sheet Modal ── -->
+  <div id="shareModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:440px;">
+      <button class="modal-close" id="shareModalClose">&times;</button>
+      <div style="font-size:36px; margin-bottom:8px;">📤</div>
+      <h3 style="color:var(--gold); margin-bottom:6px;">কার্ড শেয়ার করুন</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+        সোশ্যাল মিডিয়ায় সহজে খাঁটি ঐতিহাসিক তথ্য প্রচার করুন
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <button id="btnShareCopyImage" class="btn btn-gold" style="width:100%; justify-content:center;">
+          📋 কার্ড ইমেজ সরাসরি কপি (Ctrl+V পেস্ট করুন)
+        </button>
+        <button id="btnShareWhatsApp" class="btn btn-glass" style="width:100%; justify-content:center; border-color:#25D366; color:#25D366;">
+          💬 হোয়াটসঅ্যাপে শেয়ার
+        </button>
+        <button id="btnShareFacebook" class="btn btn-glass" style="width:100%; justify-content:center; border-color:#1877F2; color:#1877F2;">
+          📘 ফেসবুকে শেয়ার
+        </button>
+        <button id="btnShareCopyCaption" class="btn btn-glass" style="width:100%; justify-content:center; color:var(--text);">
+          📋 সম্পূর্ণ ক্যাপশন কপি
+        </button>
       </div>
     </div>
   </div>
@@ -181,6 +225,8 @@
     </div>
   </footer>
 
+  <!-- Scripts -->
+  <script src="templates/history-card.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

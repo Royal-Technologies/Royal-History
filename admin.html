@@ -353,6 +353,38 @@
         });
       }
 
+      // Auto-suggest year and date text
+      const bnMonths = ['', 'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+      const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      function toBn(n) { return String(n).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]); }
+
+      const formYearInput = document.getElementById('formYear');
+      const formYearDispInput = document.getElementById('formYearDisplay');
+      formYearInput.addEventListener('input', () => {
+        if (!formYearDispInput.value || formYearDispInput.dataset.auto === 'true') {
+          formYearDispInput.value = formYearInput.value ? `${toBn(formYearInput.value)} খ্রিস্টাব্দ` : '';
+          formYearDispInput.dataset.auto = 'true';
+        }
+      });
+      formYearDispInput.addEventListener('input', () => { formYearDispInput.dataset.auto = 'false'; });
+
+      const formDayInput = document.getElementById('formDay');
+      const formMonthInput = document.getElementById('formMonth');
+      const formDateInput = document.getElementById('formDateText');
+      function updateDateText() {
+        if (!formDateInput.value || formDateInput.dataset.auto === 'true') {
+          const d = formDayInput.value;
+          const m = parseInt(formMonthInput.value, 10);
+          if (d && m) {
+            formDateInput.value = `${toBn(d)} ${bnMonths[m]}`;
+            formDateInput.dataset.auto = 'true';
+          }
+        }
+      }
+      formDayInput.addEventListener('input', updateDateText);
+      formMonthInput.addEventListener('change', updateDateText);
+      formDateInput.addEventListener('input', () => { formDateInput.dataset.auto = 'false'; });
+
       // Add new form
       document.getElementById('addEventForm').addEventListener('submit', async (e) => {
         e.preventDefault();

@@ -11,17 +11,24 @@
   let filteredEvents = [];
   let currentCategory = 'all';
   let todayHistory = null;
-
-  // Bengali month names
-  const BN_MONTHS = [
-    '', 'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-    'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
-  ];
+  let activePreviewItem = null;
+  let currentPreviewTheme = 'archival-gold';
+  let activeShareBlob = null;
 
   function toBengaliDigits(num) {
     if (num === null || num === undefined) return '';
     const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
     return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function showToast(msg) {
@@ -125,19 +132,8 @@
     }
 
     if (btnShareToday) {
-      btnShareToday.onclick = async () => {
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: data.title,
-              text: data.caption,
-              url: window.location.href
-            });
-          } catch (_) {}
-        } else {
-          navigator.clipboard.writeText(data.caption);
-          showToast('✅ পোস্টের বিবরণ কপি হয়েছে!');
-        }
+      btnShareToday.onclick = () => {
+        openShareModal(data);
       };
     }
   }
@@ -182,10 +178,12 @@
   function applyFilters() {
     const searchInput = document.getElementById('searchInput');
     const monthSelect = document.getElementById('monthSelect');
+    const daySelect = document.getElementById('daySelect');
     const typeSelect = document.getElementById('typeSelect');
 
     const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
     const selectedMonth = monthSelect ? parseInt(monthSelect.value, 10) : 0;
+    const selectedDay = daySelect ? parseInt(daySelect.value, 10) : 0;
     const selectedType = typeSelect ? typeSelect.value : 'all';
 
     filteredEvents = allEvents.filter(item => {
@@ -197,18 +195,24 @@
       if (selectedMonth > 0 && item.target_month !== selectedMonth) {
         return false;
       }
+      // Day match
+      if (selectedDay > 0 && item.target_day !== selectedDay) {
+        return false;
+      }
       // Event Type match
       if (selectedType !== 'all' && item.event_type !== selectedType) {
         return false;
       }
-      // Query match (title, summary, tags, year)
+      // Query match (title, summary, description, tags, year, location)
       if (query) {
         const titleMatch = (item.title || '').toLowerCase().includes(query);
         const descMatch = (item.description || '').toLowerCase().includes(query);
+        const sumMatch = (item.summary || '').toLowerCase().includes(query);
         const tagsMatch = (item.tags || '').toLowerCase().includes(query);
+        const locMatch = (item.location || '').toLowerCase().includes(query);
         const yearMatch = String(item.event_year || '').includes(query) || toBengaliDigits(item.event_year).includes(query);
         const dateMatch = (item.event_date || '').toLowerCase().includes(query);
-        if (!titleMatch && !descMatch && !tagsMatch && !yearMatch && !dateMatch) {
+        if (!titleMatch && !descMatch && !sumMatch && !tagsMatch && !locMatch && !yearMatch && !dateMatch) {
           return false;
         }
       }
@@ -224,7 +228,7 @@
     if (!grid) return;
 
     if (countEl) {
-      countEl.innerText = toBengaliDigits(items.length) + 'টি ঘটনা প্রদর্শিত হচ্ছে';
+      countEl.innerText = toBengaliDigits(items.length) + 'টি ঘটনা সংরক্ষিত';
     }
 
     if (items.length === 0) {
@@ -232,13 +236,13 @@
         <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
           <div style="font-size: 48px; margin-bottom: 12px;">🔍</div>
           <h3>কোনো ঐতিহাসিক ঘটনা পাওয়া যায়নি</h3>
-          <p>অনুসন্ধানের শব্দ পরিবর্তন করে বা অন্য ক্যাটাগরি নির্বাচন করে চেষ্টা করুন।</p>
+          <p>অনুসন্ধানের শব্দ পরিবর্তন করে বা অন্য ক্যাটাগরি ও তারিখ নির্বাচন করে চেষ্টা করুন।</p>
         </div>
       `;
       return;
     }
 
-    grid.innerHTML = items.map(item => {
+    grid.innerHTML = items.map((item, index) => {
       let catBadgeClass = 'badge-gold';
       let catLabel = '📜 ইতিহাসের এই দিনে';
       if (item.category === 'bangladesh') {
@@ -255,15 +259,33 @@
       return `
         <div class="history-card" data-uid="${item.uid}">
           <div class="history-card-header">
-            <span class="badge ${catBadgeClass}">${catLabel}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="card-num">#${toBengaliDigits(index + 1)}</span>
+              <span class="badge ${catBadgeClass}">${catLabel}</span>
+            </div>
             <span class="history-year-tag">${yearBn}</span>
           </div>
-          <h3>${item.title}</h3>
-          <p>${item.summary || item.description}</p>
+
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>“${escapeHtml(item.summary || item.description)}”</p>
+
+          ${item.significance ? `
+            <div class="card-sig-box">
+              ✨ <strong>তাৎপর্য:</strong> ${escapeHtml(item.significance)}
+              ${item.location ? ` | 📍 ${escapeHtml(item.location)}` : ''}
+            </div>
+          ` : ''}
+
+          <div class="card-ref-box" style="margin-bottom:12px;">
+            📌 <strong>তথ্যসূত্র:</strong> ${escapeHtml(item.reference || 'রয়েল হিস্ট্রি মহাফেজখানা')}
+          </div>
+
           <div class="history-card-footer">
             <span>📅 ${dateText}</span>
             <div class="history-card-actions">
-              <button class="btn btn-glass btn-icon btn-view-modal" data-id="${item.id}">বিস্তারিত দেখুন</button>
+              <button class="btn btn-glass btn-icon btn-copy-summary" data-id="${item.id}" title="উদ্ধৃতি কপি করুন">✍️</button>
+              <button class="btn btn-glass btn-icon btn-copy-caption" data-id="${item.id}" title="সম্পূর্ণ ক্যাপশন কপি করুন">📋</button>
+              <button class="btn btn-gold btn-icon btn-build-card" data-id="${item.id}">🖼️ কার্ড বানান</button>
             </div>
           </div>
         </div>
@@ -271,53 +293,154 @@
     }).join('');
 
     // Attach click events
-    grid.querySelectorAll('.btn-view-modal').forEach(btn => {
+    grid.querySelectorAll('.btn-copy-summary').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = parseInt(btn.getAttribute('data-id'), 10);
         const item = allEvents.find(x => x.id === id);
-        if (item) openModal(item);
+        if (item) {
+          navigator.clipboard.writeText(`“${item.summary || item.description}”\n— [${item.title}, ${item.event_year_display || item.event_year}]`);
+          showToast('✍️ মূল সারসংক্ষেপ কপি হয়েছে!');
+        }
+      });
+    });
+
+    grid.querySelectorAll('.btn-copy-caption').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.getAttribute('data-id'), 10);
+        const item = allEvents.find(x => x.id === id);
+        if (item) {
+          const cap = buildItemCaption(item);
+          navigator.clipboard.writeText(cap);
+          showToast('📋 পোস্টের ক্যাপশন কপি হয়েছে!');
+        }
+      });
+    });
+
+    grid.querySelectorAll('.btn-build-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.getAttribute('data-id'), 10);
+        const item = allEvents.find(x => x.id === id);
+        if (item) openPreviewModal(item);
       });
     });
   }
 
-  // ── 5. Modal Engine ──
-  function openModal(item) {
-    const modal = document.getElementById('eventModal');
-    if (!modal) return;
-
+  function buildItemCaption(item) {
     let catLabel = '📜 ইতিহাসের এই দিনে';
-    if (item.category === 'bangladesh') catLabel = '🇧🇩 বাংলাদেশ';
-    else if (item.category === 'world') catLabel = '🌍 বিশ্ব';
+    if (item.category === 'bangladesh') catLabel = '🇧🇩 বাংলাদেশ ইতিহাস';
+    else if (item.category === 'world') catLabel = '🌍 বিশ্ব ইতিহাস';
 
     const yearBn = toBengaliDigits(item.event_year);
 
-    document.getElementById('modalTitle').innerText = item.title;
-    document.getElementById('modalYear').innerText = `${yearBn} খ্রিস্টাব্দ (${item.event_date || ''})`;
-    document.getElementById('modalCategory').innerText = catLabel;
-    document.getElementById('modalSummary').innerText = item.summary || '';
-    document.getElementById('modalDesc').innerText = item.description || '';
-    document.getElementById('modalSignificance').innerText = item.significance ? `✨ তাৎপর্য: ${item.significance}` : '';
-    document.getElementById('modalLocation').innerText = item.location ? `📍 স্থান: ${item.location}` : '';
-    document.getElementById('modalRef').innerText = item.reference ? `📌 তথ্যসূত্র: ${item.reference}` : '';
+    return `🏛️ ${catLabel} | Royal History — ইতিহাসের এই দিনে
 
-    const btnCopyModal = document.getElementById('btnCopyModalCaption');
-    if (btnCopyModal) {
-      btnCopyModal.onclick = () => {
-        const text = `🏛️ ${catLabel} | Royal History — ইতিহাসের এই দিনে\n\n📅 ${item.event_date} | ${yearBn} খ্রিস্টাব্দ\n⭐ ${item.title}\n\n“${item.summary || item.description}”\n\n${item.description !== item.summary ? item.description + '\n\n' : ''}${item.significance ? '✨ তাৎপর্য: ' + item.significance + '\n' : ''}📌 তথ্যসূত্র: ${item.reference || 'রয়েল হিস্ট্রি'}\n\n— Royal Technologies`;
-        navigator.clipboard.writeText(text);
-        showToast('✅ ক্যাপশন ক্লিপবোর্ডে কপি হয়েছে!');
+📅 ${item.event_date || `${item.target_day} তারিখ`} | ${item.event_year_display || `${yearBn} খ্রিস্টাব্দ`}
+⭐ ${item.title}
+
+“${item.summary || item.description}”
+
+${item.description && item.description !== item.summary ? `📖 বিস্তারিত ইতিহাস:\n${item.description}\n\n` : ''}${item.significance ? `✨ ঐতিহাসিক তাৎপর্য: ${item.significance}\n` : ''}${item.location ? `📍 স্থান: ${item.location}\n` : ''}📌 তথ্যসূত্র: ${item.reference || 'রয়েল হিস্ট্রি মহাফেজখানা'}
+
+—
+কারিগরি সহায়তায়: Royal Technologies (https://www.royaltechbd.com/)
+ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
+
+#RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #RoyalTechnologies #ইতিহাসেরএইদিনে`;
+  }
+
+  // ── 5. Live Card Preview & Customizer Modal ──
+  function openPreviewModal(item) {
+    activePreviewItem = item;
+    const modal = document.getElementById('previewModal');
+    if (!modal) return;
+
+    const themeSelect = document.getElementById('previewThemeSelect');
+    if (themeSelect) {
+      if (item.category === 'bangladesh') currentPreviewTheme = 'independence-emerald';
+      else if (item.category === 'world') currentPreviewTheme = 'archival-gold';
+      else currentPreviewTheme = 'vintage-parchment';
+      themeSelect.value = currentPreviewTheme;
+    }
+
+    renderPreviewCanvas(item, currentPreviewTheme);
+    modal.classList.add('open');
+  }
+
+  function closePreviewModal() {
+    const modal = document.getElementById('previewModal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  function renderPreviewCanvas(item, themeKey) {
+    const canvas = document.getElementById('previewCanvas');
+    if (!canvas || !window.HistoryCardTemplate) return;
+
+    window.HistoryCardTemplate.renderCard(canvas, item, { theme: themeKey });
+
+    // Prepare blob for sharing
+    canvas.toBlob(blob => {
+      activeShareBlob = blob;
+    }, 'image/png');
+  }
+
+  // ── 6. Share Modal ──
+  function openShareModal(data) {
+    const modal = document.getElementById('shareModal');
+    if (!modal) return;
+
+    const btnShareCopyImage = document.getElementById('btnShareCopyImage');
+    const btnShareWhatsApp = document.getElementById('btnShareWhatsApp');
+    const btnShareFacebook = document.getElementById('btnShareFacebook');
+    const btnShareCopyCaption = document.getElementById('btnShareCopyCaption');
+
+    const caption = data.caption || buildItemCaption(data);
+    const pageUrl = window.location.href;
+
+    if (btnShareCopyImage) {
+      btnShareCopyImage.onclick = async () => {
+        if (activeShareBlob && navigator.clipboard && window.ClipboardItem) {
+          try {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': activeShareBlob })]);
+            showToast('📋 কার্ড ইমেজ ক্লিপবোর্ডে কপি হয়েছে! (ফেসবুকে Ctrl+V দিন)');
+            closeShareModal();
+            return;
+          } catch (_) {}
+        }
+        showToast('⚠️ ইমেজ ডাউনলোড করে শেয়ার করুন।');
+      };
+    }
+
+    if (btnShareWhatsApp) {
+      btnShareWhatsApp.onclick = () => {
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption + '\n\n' + pageUrl), '_blank');
+        closeShareModal();
+      };
+    }
+
+    if (btnShareFacebook) {
+      btnShareFacebook.onclick = () => {
+        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl), '_blank');
+        closeShareModal();
+      };
+    }
+
+    if (btnShareCopyCaption) {
+      btnShareCopyCaption.onclick = () => {
+        navigator.clipboard.writeText(caption);
+        showToast('📋 সম্পূর্ণ ক্যাপশন কপি হয়েছে!');
+        closeShareModal();
       };
     }
 
     modal.classList.add('open');
   }
 
-  function closeModal() {
-    const modal = document.getElementById('eventModal');
+  function closeShareModal() {
+    const modal = document.getElementById('shareModal');
     if (modal) modal.classList.remove('open');
   }
 
-  // ── 6. Setup Event Listeners ──
+  // ── 7. Setup Event Listeners ──
   function setupListeners() {
     // Category pill buttons
     document.querySelectorAll('.pill-btn').forEach(btn => {
@@ -330,31 +453,85 @@
     });
 
     // Inputs
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-      searchInput.addEventListener('input', applyFilters);
+    ['searchInput', 'monthSelect', 'daySelect', 'typeSelect'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', applyFilters);
+      if (el) el.addEventListener('change', applyFilters);
+    });
+
+    // Preview Modal Theme Select
+    const themeSelect = document.getElementById('previewThemeSelect');
+    if (themeSelect) {
+      themeSelect.addEventListener('change', (e) => {
+        currentPreviewTheme = e.target.value;
+        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewTheme);
+      });
     }
 
-    const monthSelect = document.getElementById('monthSelect');
-    if (monthSelect) {
-      monthSelect.addEventListener('change', applyFilters);
+    // Random Theme Button
+    const btnRandomTheme = document.getElementById('btnRandomTheme');
+    if (btnRandomTheme) {
+      btnRandomTheme.addEventListener('click', () => {
+        if (!window.HistoryCardTemplate) return;
+        const keys = window.HistoryCardTemplate.THEME_KEYS || Object.keys(window.HistoryCardTemplate.THEMES || {});
+        currentPreviewTheme = keys[Math.floor(Math.random() * keys.length)];
+        if (themeSelect) themeSelect.value = currentPreviewTheme;
+        if (activePreviewItem) renderPreviewCanvas(activePreviewItem, currentPreviewTheme);
+        showToast('🎲 নতুন র‍্যান্ডম হিস্টোরিক্যাল থিম রেন্ডার হয়েছে!');
+      });
     }
 
-    const typeSelect = document.getElementById('typeSelect');
-    if (typeSelect) {
-      typeSelect.addEventListener('change', applyFilters);
+    // Download Preview Button
+    const btnDownloadPreview = document.getElementById('btnDownloadPreview');
+    if (btnDownloadPreview) {
+      btnDownloadPreview.addEventListener('click', () => {
+        const canvas = document.getElementById('previewCanvas');
+        if (!canvas) return;
+        const link = document.createElement('a');
+        link.download = `RoyalHistory-${activePreviewItem?.uid || 'Card'}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('📥 কার্ড ডাউনলোড শুরু হয়েছে!');
+      });
     }
 
-    // Modal close
-    const modalClose = document.getElementById('modalClose');
-    if (modalClose) {
-      modalClose.addEventListener('click', closeModal);
+    // Share Preview Button
+    const btnSharePreview = document.getElementById('btnSharePreview');
+    if (btnSharePreview) {
+      btnSharePreview.addEventListener('click', () => {
+        if (activePreviewItem) openShareModal(activePreviewItem);
+      });
     }
 
-    const modal = document.getElementById('eventModal');
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+    // Copy Preview Caption Button
+    const btnCopyPreviewCaption = document.getElementById('btnCopyPreviewCaption');
+    if (btnCopyPreviewCaption) {
+      btnCopyPreviewCaption.addEventListener('click', () => {
+        if (activePreviewItem) {
+          navigator.clipboard.writeText(buildItemCaption(activePreviewItem));
+          showToast('📋 ক্যাপশন কপি হয়েছে!');
+        }
+      });
+    }
+
+    // Modal Close buttons
+    const previewModalClose = document.getElementById('previewModalClose');
+    if (previewModalClose) previewModalClose.addEventListener('click', closePreviewModal);
+
+    const shareModalClose = document.getElementById('shareModalClose');
+    if (shareModalClose) shareModalClose.addEventListener('click', closeShareModal);
+
+    const previewModal = document.getElementById('previewModal');
+    if (previewModal) {
+      previewModal.addEventListener('click', (e) => {
+        if (e.target === previewModal) closePreviewModal();
+      });
+    }
+
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) {
+      shareModal.addEventListener('click', (e) => {
+        if (e.target === shareModal) closeShareModal();
       });
     }
 
@@ -385,10 +562,10 @@
       statCardToday.addEventListener('click', () => {
         const now = new Date();
         const mSelect = document.getElementById('monthSelect');
-        if (mSelect) {
-          mSelect.value = String(now.getMonth() + 1);
-          applyFilters();
-        }
+        const dSelect = document.getElementById('daySelect');
+        if (mSelect) mSelect.value = String(now.getMonth() + 1);
+        if (dSelect) dSelect.value = String(now.getDate());
+        applyFilters();
       });
     }
   }
