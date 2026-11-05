@@ -639,11 +639,11 @@
     const refText = item.reference ? `তথ্যসূত্র: ${item.reference}` : 'তথ্যসূত্র: রয়েল হিস্ট্রি মহাফেজখানা';
     ctx.fillText(refText, cardX + 44, footerY);
 
-    // Credits (Right)
+    // Credits (Right) - Royal Technologies Branding
     ctx.textAlign = 'right';
     ctx.fillStyle = theme.primaryGold;
-    ctx.font = '600 16px "Hind Siliguri", sans-serif';
-    ctx.fillText('Royal Technologies ✦ royaltechbd.com', cardX + cardW - 44, footerY);
+    ctx.font = 'bold 16px "Hind Siliguri", sans-serif';
+    ctx.fillText('Royal Technologies ✦ www.royaltechbd.com', cardX + cardW - 44, footerY);
     ctx.restore();
   }
 
