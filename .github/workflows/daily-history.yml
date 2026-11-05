@@ -1,0 +1,68 @@
+name: Daily Royal History Generation & Publishing
+
+on:
+  schedule:
+    # 00:05 UTC = সকাল ০৬:০৫ বাংলাদেশ সময় (BST)
+    - cron: '5 0 * * *'
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'Category: on_this_day, bangladesh, or world (empty for auto)'
+        required: false
+        default: ''
+      theme:
+        description: 'Theme key (e.g. archival-gold, independence-emerald, vintage-parchment)'
+        required: false
+        default: ''
+      uid:
+        description: 'Specific event UID (empty for auto)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Dhaka
+      HISTORY_CATEGORY: ${{ github.event.inputs.category }}
+      HISTORY_THEME: ${{ github.event.inputs.theme }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Generate Daily Royal History Card (1080x1080 PNG)
+        run: |
+          CMD="node scripts/generate-history.js"
+          if [ -n "${{ github.event.inputs.uid }}" ]; then
+            CMD="$CMD --uid=${{ github.event.inputs.uid }}"
+          fi
+          $CMD
+
+      - name: Commit & Push Daily Assets
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add cards/ database/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(daily): publish today's history card $(date +'%Y-%m-%d') [skip ci]"
+            git push
+          fi

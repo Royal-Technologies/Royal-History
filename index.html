@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Royal History — ইতিহাসের এই দিনে | বাংলাদেশ ও বিশ্ব ইতিহাস</title>
+  <meta name="description" content="Royal History — প্রতিদিনের ঐতিহাসিক ঘটনা, বাংলাদেশ ও বিশ্ব ইতিহাসের মোড় ঘোরানো অধ্যায়ের স্বয়ংক্রিয় ১০৮০×১০৮০ কার্ড প্ল্যাটফর্ম।">
+  <meta name="theme-color" content="#d4af37">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Royal History — ইতিহাসের এই দিনে">
+  <meta property="og:description" content="বাংলাদেশ ও বিশ্ব ইতিহাসের গুরুত্বপূর্ণ অধ্যায়ের প্রিমিয়াম কার্ড প্ল্যাটফর্ম।">
+  <meta property="og:image" content="cards/today.png">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="cards/today-data.js" defer></script>
+</head>
+<body>
+
+  <!-- ── Hero Header ── -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-seal">🏛️</div>
+      <div class="hero-brand">ROYAL HISTORY ✦ ইতিহাসের এই দিনে</div>
+      <h1>ইতিহাসের পাতা থেকে <span>প্রতিদিনের স্মরণীয় অধ্যায়</span></h1>
+      <p>বাংলাদেশ ও বিশ্ব ইতিহাসের গৌরবোজ্জ্বল ঘটনা, আত্মত্যাগ, আবিষ্কার ও বিশিষ্ট ব্যক্তিত্বদের স্মরণে প্রস্তুত প্রতিদিনের সোশ্যাল কার্ড প্ল্যাটফর্ম।</p>
+      
+      <div class="hero-actions">
+        <a href="#todayShowcase" class="btn btn-gold">📜 আজকের ইতিহাস দেখুন</a>
+        <button id="themeToggle" class="btn btn-glass">☀️ লাইট মোড</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ── Live Stats Bar ── -->
+    <section class="stats-grid">
+      <div class="stat-card" id="statCardTotal" style="cursor:pointer;" title="সবগুলো ঘটনা দেখুন">
+        <div class="stat-icon">📚</div>
+        <strong id="statTotal">--</strong>
+        <span>মোট সংরক্ষিত ঘটনা</span>
+      </div>
+      <div class="stat-card" id="statCardBD" style="cursor:pointer;" title="বাংলাদেশের ইতিহাস ফিল্টার করুন">
+        <div class="stat-icon">🇧🇩</div>
+        <strong id="statBD">--</strong>
+        <span>বাংলাদেশ ইতিহাস</span>
+      </div>
+      <div class="stat-card" id="statCardWorld" style="cursor:pointer;" title="বিশ্বের ইতিহাস ফিল্টার করুন">
+        <div class="stat-icon">🌍</div>
+        <strong id="statWorld">--</strong>
+        <span>বিশ্ব ইতিহাস</span>
+      </div>
+      <div class="stat-card" id="statCardToday" style="cursor:pointer;" title="চলতি মাসের ঘটনা ফিল্টার করুন">
+        <div class="stat-icon">📅</div>
+        <strong id="statToday">--</strong>
+        <span>আজকের দিনের ঘটনা</span>
+      </div>
+    </section>
+
+    <!-- ── Today's Featured Showcase ── -->
+    <section id="todayShowcase" class="today-showcase">
+      <div class="today-img-wrap">
+        <img id="todayImg" src="cards/today.png" alt="আজকের ইতিহাস কার্ড" onerror="this.src='cards/today.png'">
+      </div>
+      <div class="today-info">
+        <div class="badge-row">
+          <span class="badge badge-gold">✨ আজকের নির্বাচিত ইতিহাস</span>
+          <span id="todayBadgeCat" class="badge badge-emerald">📜 ক্যাটাগরি</span>
+          <span id="todayBadgeDate" class="badge" style="background:var(--soft-bg); color:var(--text);">📅 তারিখ</span>
+        </div>
+        <div id="todayYear" class="today-year-pill">...</div>
+        <h2 id="todayTitle" class="today-title">আজকের ইতিহাস লোড হচ্ছে...</h2>
+        <div id="todaySummary" class="today-summary">...</div>
+
+        <div class="today-controls">
+          <a id="btnDownloadToday" href="cards/today.png" download="RoyalHistory-Today.png" class="btn btn-gold">
+            📥 ডাউনলোড ১০৮০×১০৮০ PNG
+          </a>
+          <button id="btnShareToday" class="btn btn-emerald">
+            📤 শেয়ার করুন
+          </button>
+          <button id="btnCopyCaption" class="btn btn-glass" style="color:var(--text); border-color:var(--card-border);">
+            📋 ক্যাপশন কপি করুন
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Filter & Search Bar ── -->
+    <div class="tools-bar">
+      <div class="filter-grid-row">
+        <div class="input-group">
+          <input type="text" id="searchInput" placeholder="🔍 শিরোনাম, সাল, বিষয় বা কীওয়ার্ড দিয়ে খুঁজুন...">
+        </div>
+        <div class="input-group">
+          <select id="monthSelect">
+            <option value="0">সকল মাস</option>
+            <option value="1">জানুয়ারি</option>
+            <option value="2">ফেব্রুয়ারি</option>
+            <option value="3">মার্চ</option>
+            <option value="4">এপ্রিল</option>
+            <option value="5">মে</option>
+            <option value="6">জুন</option>
+            <option value="7">জুলাই</option>
+            <option value="8">আগস্ট</option>
+            <option value="9">সেপ্টেম্বর</option>
+            <option value="10">অক্টোবর</option>
+            <option value="11">নভেম্বর</option>
+            <option value="12">ডিসেম্বর</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <select id="typeSelect">
+            <option value="all">সকল ধরন</option>
+            <option value="event">🏛️ ঐতিহাসিক ঘটনা</option>
+            <option value="milestone">🚩 মাইলফলক</option>
+            <option value="birth">🎂 জন্মবার্ষিকী</option>
+            <option value="demise">🕊️ প্রয়াণ</option>
+            <option value="discovery">🔬 বিজ্ঞান ও আবিষ্কার</option>
+            <option value="treaty">📜 ঐতিহাসিক চুক্তি</option>
+          </select>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:flex-end;">
+          <span id="filteredCount" style="font-size:14px; color:var(--gold); font-weight:600;">--</span>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="category-pills">
+        <button class="pill-btn active" data-category="all">সবগুলো অধ্যায়</button>
+        <button class="pill-btn" data-category="on_this_day">📜 ইতিহাসের এই দিনে</button>
+        <button class="pill-btn" data-category="bangladesh">🇧🇩 বাংলাদেশ ইতিহাস</button>
+        <button class="pill-btn" data-category="world">🌍 বিশ্ব ইতিহাস</button>
+      </div>
+    </div>
+
+    <!-- ── Events Grid ── -->
+    <section id="eventsGrid" class="events-grid">
+      <!-- Injected via app.js -->
+    </section>
+  </main>
+
+  <!-- ── Event Details Modal ── -->
+  <div id="eventModal" class="modal-overlay">
+    <div class="modal-content">
+      <button id="modalClose" class="modal-close">&times;</button>
+      <div class="badge-row" style="margin-bottom:14px;">
+        <span id="modalCategory" class="badge badge-gold">ক্যাটাগরি</span>
+        <span id="modalYear" class="badge badge-emerald">সাল</span>
+      </div>
+      <h2 id="modalTitle" style="font-size:24px; margin-bottom:16px;">...</h2>
+      
+      <div id="modalSummary" style="background:var(--soft-bg); padding:16px; border-radius:10px; border-left:4px solid var(--gold); margin-bottom:18px; font-weight:500;">...</div>
+      <div id="modalDesc" style="color:var(--text); line-height:1.75; margin-bottom:18px;">...</div>
+      
+      <div style="margin-bottom:20px; font-size:14px; color:var(--text-muted); display:flex; flex-direction:column; gap:6px;">
+        <div id="modalSignificance"></div>
+        <div id="modalLocation"></div>
+        <div id="modalRef"></div>
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end; border-top:1px solid var(--card-border); padding-top:16px;">
+        <button id="btnCopyModalCaption" class="btn btn-gold">📋 ক্যাপশন কপি করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom:8px;"><strong>Royal History (রয়েল হিস্ট্রি)</strong> — ইতিহাসের পাতা থেকে প্রতিদিন</p>
+      <p>কারিগরি সহায়তায়: <a href="https://www.royaltechbd.com/" target="_blank" rel="noopener">Royal Technologies</a> | সর্বস্বত্ব সংরক্ষিত</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Royal History — লোকালহোস্ট অ্যাডমিন প্যানেল</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .admin-container {
+      max-width: 1140px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .admin-header {
+      background: linear-gradient(135deg, #1e1104, #3d2107);
+      padding: 24px 30px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 10px 14px;
+      background: var(--soft-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 85px;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--gold);
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .admin-table th, .admin-table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 14px;
+    }
+    .admin-table th {
+      background: var(--soft-bg);
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .admin-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .security-lock {
+      display: none;
+      text-align: center;
+      padding: 100px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .security-lock h1 {
+      color: #ef4444;
+      font-size: 32px;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Security lock for non-localhost -->
+  <div id="securityLock" class="security-lock">
+    <div style="font-size:64px; margin-bottom:16px;">🔒</div>
+    <h1>নিরাপত্তা সতর্কতা: এক্সেস নিষিদ্ধ</h1>
+    <p style="color:var(--text-muted); font-size:16px; line-height:1.6;">
+      Royal History অ্যাডমিন প্যানেল শুধুমাত্র আপনার লোকাল মেশিনের <strong>Localhost (127.0.0.1)</strong> থেকে পরিচালনা করার অনুমতিপ্রাপ্ত। রিমোট বা পাবলিক ইন্টারনেট থেকে এটি পরিচালনা করা সম্পূর্ণ নিষিদ্ধ।
+    </p>
+  </div>
+
+  <div id="adminPanel" class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+      <div>
+        <h2 style="font-size:24px; color:#ffffff; margin-bottom:4px;">🏛️ Royal History অ্যাডমিন ড্যাশবোর্ড</h2>
+        <span style="font-size:13px; color:var(--gold-light);">🔒 লোকালহোস্ট মোড (127.0.0.1:3400 / Laragon) | Royal Technologies</span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="btnTriggerGen" class="btn btn-gold">⚡ আজকের কার্ড রেন্ডার করুন</button>
+        <a href="index.html" class="btn btn-glass" target="_blank">🌐 পাবলিক ভিউ দেখুন</a>
+      </div>
+    </header>
+
+    <!-- Generation Live Feedback -->
+    <div id="genStatusBox" style="display:none; margin-bottom:24px; padding:16px; border-radius:10px; background:var(--card-bg); border:1px solid var(--gold);">
+      <h4 style="color:var(--gold); margin-bottom:8px;">✅ কার্ড জেনারেশন সম্পন্ন:</h4>
+      <div id="genDetails" style="font-size:14px; color:var(--text-muted);"></div>
+    </div>
+
+    <!-- Add New Event Card -->
+    <section class="admin-card">
+      <h3 style="font-size:20px; color:var(--gold); margin-bottom:18px;">➕ নতুন ঐতিহাসিক ঘটনা যুক্ত করুন</h3>
+      <form id="addEventForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ক্যাটাগরি *</label>
+            <select id="formCategory" required>
+              <option value="on_this_day">📜 ইতিহাসের এই দিনে (সাধারণ)</option>
+              <option value="bangladesh">🇧🇩 বাংলাদেশ ইতিহাস</option>
+              <option value="world">🌍 বিশ্ব ইতিহাস</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>ইভেন্ট টাইপ</label>
+            <select id="formType">
+              <option value="event">🏛️ ঐতিহাসিক ঘটনা</option>
+              <option value="milestone">🚩 মাইলফলক</option>
+              <option value="birth">🎂 জন্মবার্ষিকী</option>
+              <option value="demise">🕊️ প্রয়াণ</option>
+              <option value="discovery">🔬 বিজ্ঞান ও আবিষ্কার</option>
+              <option value="treaty">📜 ঐতিহাসিক চুক্তি</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>সাল (Year) * (উদা: 1971 বা 1605)</label>
+            <input type="number" id="formYear" placeholder="১৯৭১" required>
+          </div>
+
+          <div class="form-group">
+            <label>সাল প্রদর্শন (ঐচ্ছিক)</label>
+            <input type="text" id="formYearDisplay" placeholder="১৯৭১ খ্রিস্টাব্দ">
+          </div>
+
+          <div class="form-group">
+            <label>তারিখের দিন (Day: 1-31) *</label>
+            <input type="number" id="formDay" min="1" max="31" placeholder="৫" required>
+          </div>
+
+          <div class="form-group">
+            <label>মাস (Month: 1-12) *</label>
+            <select id="formMonth" required>
+              <option value="1">১ - জানুয়ারি</option>
+              <option value="2">২ - ফেব্রুয়ারি</option>
+              <option value="3">৩ - মার্চ</option>
+              <option value="4">৪ - এপ্রিল</option>
+              <option value="5">৫ - মে</option>
+              <option value="6">৬ - জুন</option>
+              <option value="7">৭ - জুলাই</option>
+              <option value="8">৮ - আগস্ট</option>
+              <option value="9">৯ - সেপ্টেম্বর</option>
+              <option value="10">১০ - অক্টোবর</option>
+              <option value="11" selected>১১ - নভেম্বর</option>
+              <option value="12">১২ - ডিসেম্বর</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>তারিখ টেক্সট (উদা: ৫ নভেম্বর)</label>
+            <input type="text" id="formDateText" placeholder="৫ নভেম্বর">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label>শিরোনাম (Title) *</label>
+          <input type="text" id="formTitle" placeholder="ঐতিহাসিক ঘটনার সংক্ষিপ্ত আকর্ষণীয় শিরোনাম" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label>মূল সারসংক্ষেপ / উদ্ধৃতি (কার্ডে প্রদর্শিত হবে - Summary) *</label>
+          <textarea id="formSummary" placeholder="কার্ডে প্রদর্শনের জন্য ২০-৪০ শব্দের মূল বক্তব্য বা সারসংক্ষেপ..." required></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label>পূর্ণাঙ্গ ঐতিহাসিক পটভূমি ও বিবরণ (Description)</label>
+          <textarea id="formDesc" placeholder="বিস্তারিত ইতিহাস, যা ওয়েবে ও পোস্ট ক্যাপশনে যাবে..."></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ঐতিহাসিক তাৎপর্য (Significance)</label>
+            <input type="text" id="formSignificance" placeholder="জাতীয় বা বৈশ্বিক গুরুত্ব...">
+          </div>
+
+          <div class="form-group">
+            <label>স্থান (Location)</label>
+            <input type="text" id="formLocation" placeholder="ঢাকা, বাংলাদেশ / লন্ডন, যুক্তরাজ্য">
+          </div>
+
+          <div class="form-group">
+            <label>তথ্যসূত্র (Reference)</label>
+            <input type="text" id="formRef" placeholder="জাতীয় মহাফেজখানা / উইকিপিডিয়া">
+          </div>
+
+          <div class="form-group">
+            <label>ট্যাগসমূহ (কমা দিয়ে)</label>
+            <input type="text" id="formTags" placeholder="মুক্তিযুদ্ধ,বঙ্গবন্ধু,১৯৭১">
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+          <button type="reset" class="btn btn-glass">রিসেট</button>
+          <button type="submit" class="btn btn-gold">💾 ডাটাবেজে সংরক্ষণ করুন</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Existing Events List -->
+    <section class="admin-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <h3 style="font-size:20px; color:var(--gold);">📋 ডাটাবেজে সংরক্ষিত ঘটনা তালিকা</h3>
+        <input type="text" id="adminSearch" placeholder="তালিকায় খুঁজুন..." style="padding:8px 14px; background:var(--soft-bg); border:1px solid var(--card-border); color:var(--text); border-radius:8px; font-size:14px;">
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>UID</th>
+              <th>ক্যাটাগরি</th>
+              <th>সাল ও তারিখ</th>
+              <th>শিরোনাম</th>
+              <th>ব্যবহার সংখ্যা</th>
+              <th>অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">লোড হচ্ছে...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (function () {
+      // 1. Localhost Check
+      const host = window.location.hostname;
+      const isLocal = (host === 'localhost' || host === '127.0.0.1' || host === '::1');
+      if (!isLocal) {
+        document.getElementById('securityLock').style.display = 'block';
+        document.getElementById('adminPanel').style.display = 'none';
+        return;
+      }
+
+      const API_BASE = window.location.port === '3400' ? '/api' : 'api/admin.php';
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+
+      let items = [];
+
+      async function fetchItems() {
+        try {
+          const res = await fetch(API_BASE === '/api' ? '/api/items' : 'api/admin.php');
+          if (res.ok) {
+            items = await res.json();
+            renderTable(items);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function renderTable(dataList) {
+        const tbody = document.getElementById('adminTableBody');
+        if (!dataList || dataList.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">কোনো ঘটনা পাওয়া যায়নি।</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = dataList.map(item => {
+          let cat = '📜 ইতিহাসের এই দিনে';
+          if (item.category === 'bangladesh') cat = '🇧🇩 বাংলাদেশ';
+          else if (item.category === 'world') cat = '🌍 বিশ্ব';
+
+          return `
+            <tr>
+              <td><code>${item.uid}</code></td>
+              <td>${cat}</td>
+              <td><strong>${item.event_year}</strong> (${item.event_date || item.target_day + '/' + item.target_month})</td>
+              <td><strong>${item.title}</strong></td>
+              <td>${item.used_count || 0} বার</td>
+              <td>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn btn-glass btn-icon btn-test-gen" data-uid="${item.uid}" title="এই কার্ড রেন্ডার করুন">🎨 কার্ড তৈরি</button>
+                  <button class="btn btn-icon btn-delete" data-id="${item.id}" style="background:#ef4444; color:#fff;" title="ডিলিট">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Attach events
+        tbody.querySelectorAll('.btn-delete').forEach(b => {
+          b.addEventListener('click', async () => {
+            if (!confirm('আপনি কি নিশ্চিতভাবে এই ঐতিহাসিক ঘটনাটি মুছে ফেলতে চান?')) return;
+            const id = b.getAttribute('data-id');
+            const url = API_BASE === '/api' ? `/api/items/${id}` : `api/admin.php?id=${id}`;
+            const res = await fetch(url, { method: 'DELETE' });
+            if (res.ok) {
+              showToast('✅ ঘটনাটি মুছে ফেলা হয়েছে।');
+              fetchItems();
+            }
+          });
+        });
+
+        tbody.querySelectorAll('.btn-test-gen').forEach(b => {
+          b.addEventListener('click', async () => {
+            const uid = b.getAttribute('data-uid');
+            triggerGeneration({ uid: uid });
+          });
+        });
+      }
+
+      // Add new form
+      document.getElementById('addEventForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          category: document.getElementById('formCategory').value,
+          event_type: document.getElementById('formType').value,
+          event_year: parseInt(document.getElementById('formYear').value, 10),
+          event_year_display: document.getElementById('formYearDisplay').value || (document.getElementById('formYear').value + ' খ্রিস্টাব্দ'),
+          target_day: parseInt(document.getElementById('formDay').value, 10),
+          target_month: parseInt(document.getElementById('formMonth').value, 10),
+          event_date: document.getElementById('formDateText').value || (document.getElementById('formDay').value + ' তারিখ'),
+          title: document.getElementById('formTitle').value,
+          summary: document.getElementById('formSummary').value,
+          description: document.getElementById('formDesc').value || document.getElementById('formSummary').value,
+          significance: document.getElementById('formSignificance').value,
+          location: document.getElementById('formLocation').value,
+          reference: document.getElementById('formRef').value || 'রয়েল হিস্ট্রি মহাফেজখানা',
+          tags: document.getElementById('formTags').value
+        };
+
+        try {
+          const res = await fetch(API_BASE === '/api' ? '/api/items' : 'api/admin.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+          if (res.ok) {
+            showToast('✅ ' + (result.message || 'সংরক্ষিত হয়েছে!'));
+            document.getElementById('addEventForm').reset();
+            fetchItems();
+          } else {
+            alert('ভুল: ' + (result.error || 'সংরক্ষণ ব্যর্থ'));
+          }
+        } catch (err) {
+          alert('নেটওয়ার্ক ত্রুটি: ' + err.message);
+        }
+      });
+
+      // Trigger Generation
+      async function triggerGeneration(opts = {}) {
+        showToast('⏳ কার্ড রেন্ডার হচ্ছে...');
+        try {
+          const url = API_BASE === '/api' ? '/api/generate' : 'api/admin.php?action=generate';
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(opts)
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showToast('🎉 নতুন কার্ড তৈরি সম্পন্ন!');
+            const box = document.getElementById('genStatusBox');
+            const det = document.getElementById('genDetails');
+            box.style.display = 'block';
+            det.innerHTML = `<strong>${data.card?.title || 'রয়েল হিস্ট্রি কার্ড'}</strong> (${data.card?.eventYearDisplay || ''})<br>থিম: <code>${data.card?.theme || 'ডিফল্ট'}</code><br><a href="cards/today.png?t=${Date.now()}" target="_blank" style="color:var(--gold);">🖼️ তৈরি করা ইমেজ দেখুন (cards/today.png)</a>`;
+            fetchItems();
+          } else {
+            alert('রেন্ডার ব্যর্থ: ' + (data.error || 'ত্রুটি'));
+          }
+        } catch (err) {
+          alert('ত্রুটি: ' + err.message);
+        }
+      }
+
+      document.getElementById('btnTriggerGen').addEventListener('click', () => triggerGeneration());
+
+      // Search filter in admin
+      document.getElementById('adminSearch').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const filtered = items.filter(x => 
+          (x.title || '').toLowerCase().includes(q) ||
+          (x.uid || '').toLowerCase().includes(q) ||
+          String(x.event_year || '').includes(q) ||
+          (x.category || '').toLowerCase().includes(q)
+        );
+        renderTable(filtered);
+      });
+
+      fetchItems();
+    })();
+  </script>
+</body>
+</html>
