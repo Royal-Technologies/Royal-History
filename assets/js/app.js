@@ -98,23 +98,56 @@
     if (todayImg) {
       todayImg.src = 'cards/today.png?t=' + Date.now();
     }
-    if (todayYear) {
-      todayYear.innerText = toBengaliDigits(data.eventYear) + ' খ্রিস্টাব্দ';
-    }
-    if (todayTitle) {
-      todayTitle.innerText = data.title || '';
-    }
-    if (todaySummary) {
-      todaySummary.innerText = data.summary || data.description || '';
-    }
-    if (todayBadgeCat) {
-      let label = '📜 ইতিহাসের এই দিনে';
-      if (data.category === 'bangladesh') label = '🇧🇩 বাংলাদেশ';
-      else if (data.category === 'world') label = '🌍 বিশ্ব';
-      todayBadgeCat.innerText = label;
-    }
+
+    const hasMultiEvents = Array.isArray(data.events) && data.events.length > 0;
+
     if (todayBadgeDate) {
-      todayBadgeDate.innerText = '📅 ' + (data.eventDate || 'আজকের দিন');
+      todayBadgeDate.innerText = '📅 ' + (data.dateText || data.eventDate || 'আজকের দিন');
+    }
+
+    if (hasMultiEvents) {
+      if (todayBadgeCat) {
+        todayBadgeCat.innerText = `🏛️ ${toBengaliDigits(data.events.length)}টি বিশেষ ঐতিহাসিক ঘটনা`;
+      }
+      if (todayYear) {
+        todayYear.innerText = 'ইতিহাসের পাতায় আজকের স্মরণীয় ঘটনাবলী';
+      }
+      if (todayTitle) {
+        todayTitle.style.display = 'none';
+      }
+      if (todaySummary) {
+        todaySummary.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            ${data.events.map((ev, i) => `
+              <div style="background:var(--card-bg); padding:12px 14px; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--gold); font-weight:700; margin-bottom:4px;">
+                  <span>#${toBengaliDigits(i + 1)} • ${ev.event_year_display || `${toBengaliDigits(ev.event_year)} খ্রিস্টাব্দ`}</span>
+                  <span class="badge ${ev.category === 'bangladesh' ? 'badge-emerald' : 'badge-gold'}" style="font-size:11px; padding:2px 8px;">${ev.category === 'bangladesh' ? '🇧🇩 বাংলাদেশ' : '🌍 বিশ্ব'}</span>
+                </div>
+                <strong style="font-size:15px; color:var(--text); line-height:1.4;">${escapeHtml(ev.title)}</strong>
+                <p style="font-size:13px; color:var(--text-muted); margin-top:4px; line-height:1.5;">“${escapeHtml(ev.summary || ev.description)}”</p>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    } else {
+      if (todayYear) {
+        todayYear.innerText = toBengaliDigits(data.eventYear) + ' খ্রিস্টাব্দ';
+      }
+      if (todayTitle) {
+        todayTitle.style.display = 'block';
+        todayTitle.innerText = data.title || '';
+      }
+      if (todaySummary) {
+        todaySummary.innerText = data.summary || data.description || '';
+      }
+      if (todayBadgeCat) {
+        let label = '📜 ইতিহাসের এই দিনে';
+        if (data.category === 'bangladesh') label = '🇧🇩 বাংলাদেশ';
+        else if (data.category === 'world') label = '🌍 বিশ্ব';
+        todayBadgeCat.innerText = label;
+      }
     }
 
     if (btnDownloadToday) {

@@ -1,5 +1,6 @@
 /**
  * Royal History — Daily Generation & Publishing Engine
+ * Generates Multi-Event 1080x1080 Card for the Day
  * Brand: Royal History — ইতিহাসের এই দিনে
  * Credits: Royal Technologies (https://www.royaltechbd.com/)
  */
@@ -63,51 +64,60 @@ const currentDay = parseInt(dateMap.day, 10);
 
 console.log(`[Royal History] Running for date: ${currentDay}/${currentMonth}/${currentYear} (Asia/Dhaka)`);
 
-// ── 4. Retrieve History Item ──
-let item = null;
+// ── 4. Retrieve History Events (Multiple Events per Day) ──
+let events = [];
 
 if (forcedUid) {
-  item = db.getItemByUid(forcedUid);
-  if (!item) {
-    console.warn(`[Warning] No item found with UID: ${forcedUid}`);
+  const single = db.getItemByUid(forcedUid);
+  if (single) {
+    events = [single];
+    // Find companion events of the same date if possible
+    const companions = db.getTodayHistoryEvents(single.target_month, single.target_day, 3);
+    for (const comp of companions) {
+      if (events.length >= 3) break;
+      if (!events.some(e => e.id === comp.id)) {
+        events.push(comp);
+      }
+    }
   }
 }
 
-if (!item) {
-  item = db.getTodayHistoryItem(currentMonth, currentDay, forcedCategory);
+if (events.length === 0) {
+  events = db.getTodayHistoryEvents(currentMonth, currentDay, 3);
 }
 
-if (!item) {
+if (!events || events.length === 0) {
   console.error('[Error] No history events found in the database. Please run npm run init-db first.');
   process.exit(1);
 }
 
-console.log(`[Royal History] Selected Event: [${item.uid}] "${item.title}" (${item.event_year_display || item.event_year})`);
+console.log(`[Royal History] Selected ${events.length} Events for today's card:`);
+events.forEach((ev, i) => {
+  console.log(`  ${i + 1}. [${ev.event_year_display || ev.event_year}] ${ev.title} (${ev.category})`);
+});
 
 // ── 5. Smart Theme Selection ──
 let selectedTheme = forcedTheme;
 if (!selectedTheme) {
-  // If Bangladesh category, prioritize independence-emerald or archival-gold
-  if (item.category === 'bangladesh') {
+  // If Bangladesh category is represented, prioritize emerald or archival
+  const hasBD = events.some(e => e.category === 'bangladesh');
+  if (hasBD) {
     const bdThemes = ['independence-emerald', 'archival-gold', 'terracotta-heritage', 'vintage-parchment', 'imperial-maroon'];
-    const idx = (currentDay + item.id) % bdThemes.length;
+    const idx = (currentDay + events[0].id) % bdThemes.length;
     selectedTheme = bdThemes[idx];
-  } else if (item.category === 'world') {
-    const worldThemes = ['archival-gold', 'sapphire-epoch', 'midnight-charcoal', 'antique-bronze', 'desert-monument'];
-    const idx = (currentDay + item.id) % worldThemes.length;
-    selectedTheme = worldThemes[idx];
   } else {
     const allThemes = Object.keys(HistoryCardTemplate.THEMES);
-    const idx = (currentDay + item.id) % allThemes.length;
+    const idx = (currentDay + events[0].id) % allThemes.length;
     selectedTheme = allThemes[idx];
   }
 }
 
 console.log(`[Royal History] Applied Theme: ${selectedTheme}`);
 
-// ── 6. Render Card Canvas ──
+// ── 6. Render Card Canvas (Multi-Event Layout) ──
 const canvas = createCanvas(1080, 1080);
-HistoryCardTemplate.renderCard(canvas, item, { theme: selectedTheme });
+const dateText = events[0].event_date || `${currentDay} তারিখ`;
+HistoryCardTemplate.renderCard(canvas, { events, dateText }, { theme: selectedTheme, dateText });
 
 // ── 7. Generate Unique Card ID and Paths ──
 const cardsDir = path.join(rootDir, 'cards');
@@ -128,40 +138,47 @@ const archivePngPath = path.join(cardsDir, `${cardId}.png`);
 
 const buffer = canvas.toBuffer('image/png');
 
-// ── 8. Build Formatted Social Media Caption ──
-let catLabel = 'ইতিহাসের এই দিনে';
-if (item.category === 'bangladesh') catLabel = 'বাংলাদেশ ইতিহাস';
-else if (item.category === 'world') catLabel = 'বিশ্ব ইতিহাস';
+// ── 8. Build Formatted Multi-Event Social Media Caption ──
+const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+function toBn(n) { return String(n).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]); }
 
-const caption = `🏛️ ${catLabel} | Royal History — ইতিহাসের এই দিনে
+let eventsCaptionText = '';
+events.forEach(ev => {
+  let catBadge = '📜 বিশ্ব ইতিহাস';
+  if (ev.category === 'bangladesh') catBadge = '🇧🇩 বাংলাদেশ ইতিহাস';
 
-📅 ${item.event_date || `${currentDay} তারিখ`} | ${item.event_year_display || `${item.event_year} খ্রিস্টাব্দ`}
-⭐ ${item.title}
+  eventsCaptionText += `🔹 ${ev.event_year_display || `${toBn(ev.event_year)} খ্রিস্টাব্দ`} [${catBadge}]:
+⭐ ${ev.title}
+“${ev.summary || ev.description}”
+${ev.significance ? `✨ তাৎপর্য: ${ev.significance}\n` : ''}\n`;
+});
 
-“${item.summary || item.description}”
+const caption = `🏛️ Royal History — ইতিহাসের এই দিনে
+📅 ${dateText} — ইতিহাসের পাতায় আজকের স্মরণীয় ঘটনাবলী
 
-${item.description && item.description !== item.summary ? `📖 বিস্তারিত পটভূমি:\n${item.description}\n\n` : ''}${item.significance ? `✨ ঐতিহাসিক তাৎপর্য: ${item.significance}\n` : ''}${item.location ? `📍 স্থান: ${item.location}\n` : ''}📌 তথ্যসূত্র: ${item.reference || 'রয়েল হিস্ট্রি মহাফেজখানা'}
+${eventsCaptionText.trim()}
+
+📌 তথ্যসূত্র: রয়েল হিস্ট্রি আর্কাইভ ও জাতীয় মহাফেজখানা
 
 —
 কারিগরি সহায়তায়: Royal Technologies (https://www.royaltechbd.com/)
-ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
+ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
 
-#RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #RoyalTechnologies #ইতিহাসেরএইদিনে`;
+#RoyalTechnologies #RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে`;
 
 const metadata = {
   cardId: cardId,
-  uid: item.uid,
-  category: item.category,
-  eventType: item.event_type,
-  eventYear: item.event_year,
-  eventYearDisplay: item.event_year_display,
-  eventDate: item.event_date,
-  title: item.title,
-  summary: item.summary,
-  description: item.description,
-  significance: item.significance,
-  location: item.location,
-  reference: item.reference,
+  dateText: dateText,
+  eventCount: events.length,
+  events: events,
+  // Primary event for backward-compatible viewers
+  uid: events[0].uid,
+  category: events[0].category,
+  eventYear: events[0].event_year,
+  eventYearDisplay: events[0].event_year_display,
+  eventDate: dateText,
+  title: events[0].title,
+  summary: events[0].summary,
   theme: selectedTheme,
   caption: caption,
   imageUrl: 'https://royal-technologies.github.io/Royal-History/cards/today.png',
@@ -176,23 +193,23 @@ fs.writeFileSync(todayJsPath, `window.ROYAL_TODAY_HISTORY = ${JSON.stringify(met
 
 if (!isPreview) {
   fs.writeFileSync(archivePngPath, buffer);
-  db.markItemUsed(item.id);
+  db.markItemsUsed(events.map(e => e.id));
   db.recordGeneration({
     cardId: cardId,
-    itemId: item.id,
-    itemUid: item.uid,
-    category: item.category,
-    eventYear: item.event_year,
-    title: item.title,
+    itemId: events[0].id,
+    itemUid: events[0].uid,
+    category: events[0].category,
+    eventYear: events[0].event_year,
+    title: `${events.length}টি ঘটনা (${dateText})`,
     theme: selectedTheme,
-    layout: 'archival-plaque',
+    layout: 'multi-event-archival',
     imagePath: `cards/${cardId}.png`,
     jsonPath: 'cards/today.json',
     caption: caption
   });
 }
 
-console.log(`[Success] Today's Royal History card generated successfully!`);
+console.log(`[Success] Multi-event Royal History card generated successfully!`);
 console.log(`  - PNG: ${todayPngPath}`);
 console.log(`  - JSON: ${todayJsonPath}`);
 if (!isPreview) console.log(`  - Archive: ${archivePngPath}`);

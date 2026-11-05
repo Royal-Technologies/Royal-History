@@ -1,6 +1,6 @@
 /**
- * Royal History — 1080x1080 Historical Card Engine
- * 10 Distinct Themes × Dynamic Archival Architectures
+ * Royal History — 1080x1080 Historical Multi-Event Card Engine
+ * Supports Multiple Events per Day with Date as the Hero Header
  * Brand: Royal History — ইতিহাসের এই দিনে
  * Credits: Royal Technologies (https://www.royaltechbd.com/)
  */
@@ -47,7 +47,7 @@
       cardBg: '#032619',
       primaryGold: '#E5C383',
       secondaryGold: '#BF9546',
-      accentGold: '#E63946', // Red accent representing freedom
+      accentGold: '#E63946',
       titleColor: '#FFFFFF',
       bodyColor: '#F4F9F5',
       metaColor: '#E5C383',
@@ -213,16 +213,11 @@
     }
   };
 
-  // Convert numbers to Bengali digits
   function toBengaliDigits(num) {
     if (num === null || num === undefined) return '';
     const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
     return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
   }
-
-  // ═════════════════════════════════════════════════════════════════
-  // 2. VECTOR ORNAMENTS & HISTORICAL EMBLEMS
-  // ═════════════════════════════════════════════════════════════════
 
   function drawVintageCorner(ctx, x, y, size, color, flipX = 1, flipY = 1) {
     ctx.save();
@@ -231,14 +226,12 @@
     ctx.strokeStyle = color;
     ctx.lineWidth = 2.5;
 
-    // Corner bracket
     ctx.beginPath();
     ctx.moveTo(0, size);
     ctx.lineTo(0, 0);
     ctx.lineTo(size, 0);
     ctx.stroke();
 
-    // Inner filigree curve
     ctx.beginPath();
     ctx.lineWidth = 1.5;
     ctx.moveTo(8, size - 8);
@@ -246,47 +239,10 @@
     ctx.lineTo(size - 8, 8);
     ctx.stroke();
 
-    // Corner dot
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(14, 14, 3, 0, Math.PI * 2);
     ctx.fill();
-
-    ctx.restore();
-  }
-
-  function drawLaurelBranch(ctx, cx, cy, width, height, color) {
-    ctx.save();
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.lineWidth = 2;
-
-    // Arc stem
-    ctx.beginPath();
-    ctx.arc(cx - width / 2, cy, height / 2, -Math.PI / 3, Math.PI / 3);
-    ctx.stroke();
-
-    // Small leaves along the arc
-    for (let a = -Math.PI / 3; a <= Math.PI / 3; a += Math.PI / 6) {
-      const lx = cx - width / 2 + (height / 2) * Math.cos(a);
-      const ly = cy + (height / 2) * Math.sin(a);
-      ctx.beginPath();
-      ctx.ellipse(lx, ly, 7, 3, a + Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Right arc stem
-    ctx.beginPath();
-    ctx.arc(cx + width / 2, cy, height / 2, Math.PI * 2 / 3, Math.PI * 4 / 3);
-    ctx.stroke();
-
-    for (let a = Math.PI * 2 / 3; a <= Math.PI * 4 / 3; a += Math.PI / 6) {
-      const lx = cx + width / 2 + (height / 2) * Math.cos(a);
-      const ly = cy + (height / 2) * Math.sin(a);
-      ctx.beginPath();
-      ctx.ellipse(lx, ly, 7, 3, a - Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
 
     ctx.restore();
   }
@@ -301,7 +257,6 @@
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 4 sharp star points
     const points = 4;
     ctx.beginPath();
     for (let i = 0; i < points * 2; i++) {
@@ -315,35 +270,10 @@
     ctx.closePath();
     ctx.fill();
 
-    // Central core
     ctx.beginPath();
     ctx.arc(cx, cy, radius * 0.25, 0, Math.PI * 2);
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
-
-    ctx.restore();
-  }
-
-  function drawParchmentRibbon(ctx, cx, cy, width, height, theme) {
-    ctx.save();
-    const halfW = width / 2;
-    const halfH = height / 2;
-
-    // Background banner
-    ctx.fillStyle = theme.isDark ? 'rgba(0, 0, 0, 0.45)' : 'rgba(255, 255, 255, 0.65)';
-    ctx.strokeStyle = theme.borderColor;
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.moveTo(cx - halfW, cy - halfH);
-    ctx.lineTo(cx + halfW, cy - halfH);
-    ctx.lineTo(cx + halfW + 12, cy);
-    ctx.lineTo(cx + halfW, cy + halfH);
-    ctx.lineTo(cx - halfW, cy + halfH);
-    ctx.lineTo(cx - halfW - 12, cy);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
 
     ctx.restore();
   }
@@ -370,14 +300,37 @@
   }
 
   // ═════════════════════════════════════════════════════════════════
-  // 3. MAIN CARD RENDERING FUNCTION
+  // 2. MAIN CARD RENDERING FUNCTION (MULTIPLE EVENTS SUPPORT)
   // ═════════════════════════════════════════════════════════════════
 
-  function renderCard(canvas, item, options) {
+  function renderCard(canvas, data, options) {
     options = options || {};
-    const themeKey = options.theme || item.theme || 'archival-gold';
+    const themeKey = options.theme || (data && data.theme) || 'archival-gold';
     const theme = THEMES[themeKey] || THEMES['archival-gold'];
     const ctx = canvas.getContext('2d');
+
+    // Normalize events array: supports array, data.events, or single item
+    let events = [];
+    if (Array.isArray(data)) {
+      events = data;
+    } else if (data && Array.isArray(data.events)) {
+      events = data.events;
+    } else if (data) {
+      events = [data];
+    }
+
+    // Limit to max 3 events for visual balance and elegance
+    events = events.slice(0, 3);
+
+    // Determine common date
+    let dateTitle = 'ইতিহাসের এই দিনে';
+    if (options.dateText) {
+      dateTitle = options.dateText;
+    } else if (data && data.dateText) {
+      dateTitle = data.dateText;
+    } else if (events.length > 0 && events[0].event_date) {
+      dateTitle = events[0].event_date;
+    }
 
     // 1. Canvas Outer Background
     ctx.clearRect(0, 0, W, H);
@@ -389,10 +342,10 @@
     ctx.fillRect(0, 0, W, H);
 
     // 2. Main Card Bounds & Shadow
-    const cardX = 48;
-    const cardY = 48;
-    const cardW = W - 96;
-    const cardH = H - 96;
+    const cardX = 44;
+    const cardY = 44;
+    const cardW = W - 88;
+    const cardH = H - 88;
 
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
@@ -417,229 +370,189 @@
     ctx.restore();
 
     // 4. Vintage Ornate Corners
-    const cornerSize = 40;
+    const cornerSize = 38;
     drawVintageCorner(ctx, cardX + 30, cardY + 30, cornerSize, theme.primaryGold, 1, 1);
     drawVintageCorner(ctx, cardX + cardW - 30, cardY + 30, cornerSize, theme.primaryGold, -1, 1);
     drawVintageCorner(ctx, cardX + 30, cardY + cardH - 30, cornerSize, theme.primaryGold, 1, -1);
     drawVintageCorner(ctx, cardX + cardW - 30, cardY + cardH - 30, cornerSize, theme.primaryGold, -1, -1);
 
     // ═════════════════════════════════════════════════════════════════
-    // 5. TOP BRANDING HEADER
+    // 5. TOP BRANDING & DATE HERO HEADER
     // ═════════════════════════════════════════════════════════════════
-    const headerY = cardY + 70;
+    const headerCenterY = cardY + 70;
     
-    // Brand Seal / Icon
-    drawCompassRose(ctx, W / 2, headerY - 14, 11, theme.primaryGold);
+    // Top Brand Subtitle
+    drawCompassRose(ctx, W / 2, headerCenterY - 14, 11, theme.primaryGold);
 
-    // Brand Name
     ctx.save();
-    ctx.font = 'bold 20px "Hind Siliguri", sans-serif';
+    ctx.font = 'bold 18px "Hind Siliguri", sans-serif';
     ctx.fillStyle = theme.primaryGold;
     ctx.textAlign = 'center';
     ctx.letterSpacing = '2px';
-    ctx.fillText('ROYAL HISTORY ✦ ইতিহাসের এই দিনে', W / 2, headerY + 16);
+    ctx.fillText('ROYAL HISTORY ✦ ইতিহাসের এই দিনে', W / 2, headerCenterY + 16);
     ctx.restore();
 
-    // Thin decorative line under header
-    ctx.save();
-    ctx.strokeStyle = theme.subtleLine;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(W / 2 - 180, headerY + 30);
-    ctx.lineTo(W / 2 + 180, headerY + 30);
-    ctx.stroke();
-    ctx.restore();
-
-    // ═════════════════════════════════════════════════════════════════
-    // 6. PROMINENT REGAL YEAR DISPLAY (ব্যবহারকারীর বিশেষ অনুরোধ)
-    // ═════════════════════════════════════════════════════════════════
-    const yearY = headerY + 115;
-    const yearBn = toBengaliDigits(item.event_year || 1971);
-    const dateText = item.event_date || 'ইতিহাসের এই দিনে';
-
-    // Year Plaque Background
-    const plaqueW = 320;
-    const plaqueH = 100;
-    drawParchmentRibbon(ctx, W / 2, yearY, plaqueW, plaqueH, theme);
-
-    // Laurel Branches framing the grand year
-    drawLaurelBranch(ctx, W / 2, yearY, 360, 90, theme.primaryGold);
-
-    // GIANT YEAR NUMBER
-    ctx.save();
-    ctx.font = 'bold 78px "Hind Siliguri", sans-serif';
-    ctx.fillStyle = theme.yearColor;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = theme.isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.15)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 4;
-    ctx.fillText(yearBn, W / 2, yearY - 4);
-    ctx.restore();
-
-    // Small caption below the year (e.g. "খ্রিস্টাব্দ")
-    ctx.save();
-    ctx.font = '600 16px "Hind Siliguri", sans-serif';
-    ctx.fillStyle = theme.metaColor;
-    ctx.textAlign = 'center';
-    ctx.fillText(item.event_year_display || `${yearBn} খ্রিস্টাব্দ`, W / 2, yearY + 42);
-    ctx.restore();
-
-    // ═════════════════════════════════════════════════════════════════
-    // 7. DATE & CATEGORY BADGE ROW
-    // ═════════════════════════════════════════════════════════════════
-    const badgeRowY = yearY + 86;
-    let categoryName = 'ইতিহাসের এই দিনে';
-    if (item.category === 'bangladesh') categoryName = '🇧🇩 বাংলাদেশ';
-    else if (item.category === 'world') categoryName = '🌍 বিশ্ব';
-    else categoryName = '📜 ইতিহাসের এই দিনে';
-
-    let eventTypeName = 'ঐতিহাসিক ঘটনা';
-    if (item.event_type === 'birth') eventTypeName = '🎂 জন্মবার্ষিকী';
-    else if (item.event_type === 'demise') eventTypeName = '🕊️ প্রয়াণ';
-    else if (item.event_type === 'discovery') eventTypeName = '🔬 বিজ্ঞান ও আবিষ্কার';
-    else if (item.event_type === 'treaty') eventTypeName = '📜 ঐতিহাসিক চুক্তি';
-    else if (item.event_type === 'milestone') eventTypeName = '🚩 মাইলফলক';
-
-    const fullBadgeText = `${categoryName}  •  📅 ${dateText}  •  ${eventTypeName}`;
+    // Date Hero Plaque Banner (NOT a single giant year)
+    const dateBannerY = headerCenterY + 68;
+    const dateHeroText = `📅 ${dateTitle} — ইতিহাসের পাতায় আজকের দিন`;
 
     ctx.save();
-    ctx.font = '600 20px "Hind Siliguri", sans-serif';
-    const badgeMetrics = ctx.measureText(fullBadgeText);
-    const badgeW = badgeMetrics.width + 48;
-    const badgeH = 40;
+    ctx.font = 'bold 32px "Hind Siliguri", sans-serif';
+    const dateMetrics = ctx.measureText(dateHeroText);
+    const dateBoxW = Math.min(dateMetrics.width + 60, cardW - 120);
+    const dateBoxH = 54;
 
     ctx.fillStyle = theme.badgeBg;
-    ctx.strokeStyle = theme.badgeBorder;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.roundRect(W / 2 - badgeW / 2, badgeRowY - badgeH / 2, badgeW, badgeH, 20);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = theme.badgeText;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(fullBadgeText, W / 2, badgeRowY + 1);
-    ctx.restore();
-
-    // ═════════════════════════════════════════════════════════════════
-    // 8. EVENT TITLE (Bold & Authoritative)
-    // ═════════════════════════════════════════════════════════════════
-    let currentContentY = badgeRowY + 45;
-    const contentMaxW = cardW - 130;
-
-    const titleText = item.title || 'ঐতিহাসিক অধ্যায়';
-    let titleFontSize = 42;
-    if (titleText.length > 55) titleFontSize = 34;
-    else if (titleText.length > 35) titleFontSize = 38;
-
-    ctx.save();
-    ctx.font = `bold ${titleFontSize}px "Hind Siliguri", sans-serif`;
-    const titleLines = wrapText(ctx, titleText, contentMaxW);
-    const titleLineHeight = titleFontSize * 1.35;
-
-    ctx.fillStyle = theme.titleColor;
-    ctx.textAlign = 'center';
-    for (let i = 0; i < titleLines.length; i++) {
-      ctx.fillText(titleLines[i], W / 2, currentContentY + (i + 1) * titleLineHeight);
-    }
-    ctx.restore();
-
-    currentContentY += titleLines.length * titleLineHeight + 25;
-
-    // Small Gold Divider
-    ctx.save();
     ctx.strokeStyle = theme.primaryGold;
     ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.moveTo(W / 2 - 80, currentContentY);
-    ctx.lineTo(W / 2 + 80, currentContentY);
-    ctx.stroke();
-
-    ctx.fillStyle = theme.primaryGold;
-    ctx.beginPath();
-    ctx.arc(W / 2, currentContentY, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    currentContentY += 28;
-
-    // ═════════════════════════════════════════════════════════════════
-    // 9. EVENT SUMMARY / QUOTE (Archival Highlight Plaque)
-    // ═════════════════════════════════════════════════════════════════
-    const summaryText = item.summary || item.description || '';
-    let summaryFontSize = 28;
-    if (summaryText.length > 250) summaryFontSize = 23;
-    else if (summaryText.length > 170) summaryFontSize = 25;
-    else if (summaryText.length > 100) summaryFontSize = 28;
-    else summaryFontSize = 31;
-
-    ctx.save();
-    ctx.font = `500 ${summaryFontSize}px "Hind Siliguri", sans-serif`;
-    const summaryLines = wrapText(ctx, summaryText, contentMaxW - 60);
-    const summaryLineHeight = summaryFontSize * 1.55;
-    const summaryBoxH = (summaryLines.length * summaryLineHeight) + 40;
-
-    // Plaque background box
-    ctx.fillStyle = theme.isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)';
-    ctx.strokeStyle = theme.subtleLine;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.roundRect(W / 2 - (contentMaxW / 2), currentContentY, contentMaxW, summaryBoxH, 14);
+    ctx.roundRect(W / 2 - dateBoxW / 2, dateBannerY - dateBoxH / 2, dateBoxW, dateBoxH, 27);
     ctx.fill();
     ctx.stroke();
 
-    // Quotation Marks or Ornaments
-    ctx.fillStyle = theme.primaryGold;
-    ctx.font = 'bold 36px "Hind Siliguri", sans-serif';
-    ctx.fillText('“', W / 2 - (contentMaxW / 2) + 20, currentContentY + 32);
-
-    // Text Lines
-    ctx.font = `500 ${summaryFontSize}px "Hind Siliguri", sans-serif`;
-    ctx.fillStyle = theme.bodyColor;
+    ctx.fillStyle = theme.titleColor;
     ctx.textAlign = 'center';
-    for (let i = 0; i < summaryLines.length; i++) {
-      ctx.fillText(summaryLines[i], W / 2, currentContentY + 34 + (i * summaryLineHeight));
-    }
+    ctx.textBaseline = 'middle';
+    ctx.fillText(dateHeroText, W / 2, dateBannerY + 2);
     ctx.restore();
 
-    currentContentY += summaryBoxH + 20;
-
     // ═════════════════════════════════════════════════════════════════
-    // 10. SIGNIFICANCE & LOCATION (Optional Highlight)
+    // 6. RENDER MULTIPLE EVENTS (২ থেকে ৩টি ঐতিহাসিক ঘটনা)
     // ═════════════════════════════════════════════════════════════════
-    if (item.significance || item.location) {
-      let extraText = '';
-      if (item.location) extraText += `📍 ${item.location}`;
-      if (item.location && item.significance) extraText += '  |  ';
-      if (item.significance) extraText += `✨ ${item.significance}`;
+    const contentTopY = dateBannerY + 45;
+    const contentBottomY = cardY + cardH - 55;
+    const totalAvailH = contentBottomY - contentTopY;
+    const numEvents = Math.max(events.length, 1);
+    const slotH = totalAvailH / numEvents;
+    const contentMaxW = cardW - 100;
 
+    events.forEach((ev, idx) => {
+      const slotY = contentTopY + (idx * slotH);
+      const isLast = (idx === numEvents - 1);
+
+      // Category & Type label
+      let catLabel = '📜 ইতিহাসের এই দিনে';
+      if (ev.category === 'bangladesh') catLabel = '🇧🇩 বাংলাদেশ';
+      else if (ev.category === 'world') catLabel = '🌍 বিশ্ব';
+
+      let typeLabel = 'ঐতিহাসিক ঘটনা';
+      if (ev.event_type === 'birth') typeLabel = '🎂 জন্মবার্ষিকী';
+      else if (ev.event_type === 'demise') typeLabel = '🕊️ প্রয়াণ';
+      else if (ev.event_type === 'discovery') typeLabel = '🔬 আবিষ্কার';
+      else if (ev.event_type === 'milestone') typeLabel = '🚩 মাইলফলক';
+      else if (ev.event_type === 'treaty') typeLabel = '📜 চুক্তি';
+
+      const yearBn = toBengaliDigits(ev.event_year);
+      const yearPillText = ev.event_year_display || `${yearBn} খ্রিস্টাব্দ`;
+
+      // ── Event Badge Row (Pill with Year + Category + Type) ──
+      const badgeY = slotY + 22;
       ctx.save();
-      ctx.font = 'italic 19px "Hind Siliguri", sans-serif';
-      const extraLines = wrapText(ctx, extraText, contentMaxW);
-      ctx.fillStyle = theme.metaColor;
+      ctx.font = 'bold 16px "Hind Siliguri", sans-serif';
+      
+      // Year Pill (Neat and balanced, NOT giant)
+      const yrMetrics = ctx.measureText(yearPillText);
+      const yrW = yrMetrics.width + 24;
+      const yrH = 28;
+      const startX = W / 2 - (contentMaxW / 2);
+
+      ctx.fillStyle = theme.isDark ? 'rgba(212, 175, 55, 0.22)' : 'rgba(139, 90, 43, 0.16)';
+      ctx.strokeStyle = theme.primaryGold;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.roundRect(startX, badgeY - yrH / 2, yrW, yrH, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = theme.yearColor;
       ctx.textAlign = 'center';
-      for (let i = 0; i < Math.min(extraLines.length, 2); i++) {
-        ctx.fillText(extraLines[i], W / 2, currentContentY + (i + 1) * 26);
+      ctx.textBaseline = 'middle';
+      ctx.fillText(yearPillText, startX + yrW / 2, badgeY + 1);
+
+      // Category & Type Tag next to Year Pill
+      ctx.font = '600 15px "Hind Siliguri", sans-serif';
+      ctx.fillStyle = theme.metaColor;
+      ctx.textAlign = 'left';
+      ctx.fillText(`•   ${catLabel}   •   ${typeLabel}`, startX + yrW + 14, badgeY + 1);
+      ctx.restore();
+
+      // ── Event Title ──
+      const titleY = badgeY + 34;
+      const titleFontSize = (numEvents === 1) ? 32 : (numEvents === 2 ? 28 : 24);
+      ctx.save();
+      ctx.font = `bold ${titleFontSize}px "Hind Siliguri", sans-serif`;
+      ctx.fillStyle = theme.titleColor;
+      ctx.textAlign = 'left';
+
+      const titleLines = wrapText(ctx, ev.title || 'ঐতিহাসিক অধ্যায়', contentMaxW);
+      const titleLineH = titleFontSize * 1.35;
+      const maxTitleLines = (numEvents >= 3) ? 1 : 2;
+
+      for (let t = 0; t < Math.min(titleLines.length, maxTitleLines); t++) {
+        let line = titleLines[t];
+        if (t === maxTitleLines - 1 && titleLines.length > maxTitleLines) {
+          line += '...';
+        }
+        ctx.fillText(line, startX, titleY + (t * titleLineH));
       }
       ctx.restore();
-    }
+
+      // ── Event Summary / Quote ──
+      const titleRenderedH = Math.min(titleLines.length, maxTitleLines) * titleLineH;
+      const summaryY = titleY + titleRenderedH + 16;
+      const summaryFontSize = (numEvents === 1) ? 22 : (numEvents === 2 ? 19 : 17);
+
+      ctx.save();
+      ctx.font = `500 ${summaryFontSize}px "Hind Siliguri", sans-serif`;
+      ctx.fillStyle = theme.bodyColor;
+      ctx.textAlign = 'left';
+
+      const summaryText = ev.summary || ev.description || '';
+      const summaryLines = wrapText(ctx, `“${summaryText}”`, contentMaxW);
+      const summaryLineH = summaryFontSize * 1.48;
+      const maxSummaryLines = (numEvents === 1) ? 4 : (numEvents === 2 ? 3 : 2);
+
+      for (let s = 0; s < Math.min(summaryLines.length, maxSummaryLines); s++) {
+        let line = summaryLines[s];
+        if (s === maxSummaryLines - 1 && summaryLines.length > maxSummaryLines) {
+          line += '...”';
+        }
+        ctx.fillText(line, startX, summaryY + (s * summaryLineH));
+      }
+      ctx.restore();
+
+      // ── Ornate Divider Between Events ──
+      if (!isLast) {
+        const divY = slotY + slotH - 12;
+        ctx.save();
+        ctx.strokeStyle = theme.subtleLine;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 220, divY);
+        ctx.lineTo(W / 2 + 220, divY);
+        ctx.stroke();
+
+        ctx.fillStyle = theme.primaryGold;
+        ctx.beginPath();
+        ctx.arc(W / 2, divY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    });
 
     // ═════════════════════════════════════════════════════════════════
-    // 11. FOOTER (Source & Royal Technologies Brand Watermark)
+    // 7. FOOTER (Source & Royal Technologies Brand Watermark)
     // ═════════════════════════════════════════════════════════════════
-    const footerY = cardY + cardH - 38;
+    const footerY = cardY + cardH - 32;
 
     // Reference (Left)
     ctx.save();
-    ctx.font = '16px "Hind Siliguri", sans-serif';
+    ctx.font = '15px "Hind Siliguri", sans-serif';
     ctx.fillStyle = theme.metaColor;
     ctx.textAlign = 'left';
-    const refText = item.reference ? `তথ্যসূত্র: ${item.reference}` : 'তথ্যসূত্র: রয়েল হিস্ট্রি মহাফেজখানা';
-    ctx.fillText(refText, cardX + 44, footerY);
+    ctx.fillText('তথ্যসূত্র: রয়েল হিস্ট্রি আর্কাইভ ও জাতীয় মহাফেজখানা', cardX + 44, footerY);
 
-    // Credits (Right) - Royal Technologies Branding
+    // Credits (Right) - Prominent Royal Technologies
     ctx.textAlign = 'right';
     ctx.fillStyle = theme.primaryGold;
     ctx.font = 'bold 16px "Hind Siliguri", sans-serif';
@@ -654,7 +567,6 @@
     renderCard,
     wrapText,
     drawVintageCorner,
-    drawLaurelBranch,
     drawCompassRose
   };
 });

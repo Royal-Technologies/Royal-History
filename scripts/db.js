@@ -143,11 +143,65 @@ function getItemByUid(uid) {
 }
 
 /**
- * Smart Selection for Today's Card:
- * 1. Matches today's target_month and target_day.
- * 2. If preferredCategory is supplied, filter by category.
- * 3. Smart rotation by used_count ASC, then last_used_at ASC, then priority DESC.
- * 4. Fallback: if no item exists for today's exact date, pick lowest used_count item from database.
+ * Smart Selection for Today's Card with Multiple Events:
+ * Returns up to `limit` events (default 3) for today's month & day.
+ * Balances across categories (Bangladesh, World, On This Day) and rotates by used_count ASC.
+ */
+function getTodayHistoryEvents(month, day, limit = 3) {
+  const db = getDb();
+
+  // Fetch all events for today's date
+  const events = db.prepare(`
+    SELECT * FROM royal_history_items 
+    WHERE is_active = 1 AND target_month = ? AND target_day = ?
+    ORDER BY used_count ASC, last_used_at ASC, priority DESC
+  `).all(month, day);
+
+  if (events && events.length >= 2) {
+    const selected = [];
+    const categories = ['bangladesh', 'world', 'on_this_day'];
+    
+    // First try to pick 1 from each category available today
+    for (const cat of categories) {
+      if (selected.length >= limit) break;
+      const found = events.find(e => e.category === cat && !selected.some(s => s.id === e.id));
+      if (found) selected.push(found);
+    }
+
+    // Fill remaining slots from the rest of today's events
+    for (const e of events) {
+      if (selected.length >= limit) break;
+      if (!selected.some(s => s.id === e.id)) {
+        selected.push(e);
+      }
+    }
+
+    selected.sort((a, b) => (a.event_year || 0) - (b.event_year || 0));
+    return selected;
+  }
+
+  const selected = events ? [...events] : [];
+  if (selected.length < limit) {
+    const fallbacks = db.prepare(`
+      SELECT * FROM royal_history_items 
+      WHERE is_active = 1
+      ORDER BY used_count ASC, last_used_at ASC, priority DESC
+    `).all();
+
+    for (const fb of fallbacks) {
+      if (selected.length >= limit) break;
+      if (!selected.some(s => s.id === fb.id)) {
+        selected.push(fb);
+      }
+    }
+  }
+
+  selected.sort((a, b) => (a.event_year || 0) - (b.event_year || 0));
+  return selected;
+}
+
+/**
+ * Smart Selection for Today's Card (Single fallback)
  */
 function getTodayHistoryItem(month, day, preferredCategory = null) {
   const db = getDb();
@@ -201,6 +255,21 @@ function markItemUsed(id) {
   exportToJson();
 }
 
+function markItemsUsed(ids) {
+  if (!Array.isArray(ids)) ids = [ids];
+  const db = getDb();
+  const now = new Date().toISOString();
+  const stmt = db.prepare(`
+    UPDATE royal_history_items 
+    SET used_count = used_count + 1, last_used_at = ?, updated_at = ?
+    WHERE id = ?
+  `);
+  for (const id of ids) {
+    if (id) stmt.run(now, now, id);
+  }
+  exportToJson();
+}
+
 /**
  * Record generation history
  */
@@ -251,7 +320,9 @@ module.exports = {
   getAllItems,
   getItemByUid,
   getTodayHistoryItem,
+  getTodayHistoryEvents,
   markItemUsed,
+  markItemsUsed,
   recordGeneration,
   deleteItem,
   exportToJson
