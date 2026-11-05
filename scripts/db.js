@@ -147,7 +147,7 @@ function getItemByUid(uid) {
  * Returns up to `limit` events (default 3) for today's month & day.
  * Balances across categories (Bangladesh, World, On This Day) and rotates by used_count ASC.
  */
-function getTodayHistoryEvents(month, day, limit = 3) {
+function getTodayHistoryEvents(month, day, limit = 4) {
   const db = getDb();
 
   // Fetch all events for today's date
@@ -159,7 +159,7 @@ function getTodayHistoryEvents(month, day, limit = 3) {
 
   if (events && events.length >= 2) {
     const selected = [];
-    const categories = ['bangladesh', 'world', 'on_this_day'];
+    const categories = ['bangladesh', 'world'];
     
     // First try to pick 1 from each category available today
     for (const cat of categories) {
@@ -176,7 +176,8 @@ function getTodayHistoryEvents(month, day, limit = 3) {
       }
     }
 
-    selected.sort((a, b) => (a.event_year || 0) - (b.event_year || 0));
+    // বর্তমান সালের ঘটনা আগে থাকবে (Descending Order by Year)
+    selected.sort((a, b) => (b.event_year || 0) - (a.event_year || 0));
     return selected;
   }
 
@@ -196,8 +197,23 @@ function getTodayHistoryEvents(month, day, limit = 3) {
     }
   }
 
-  selected.sort((a, b) => (a.event_year || 0) - (b.event_year || 0));
+  // বর্তমান সালের ঘটনা আগে থাকবে (Descending Order by Year)
+  selected.sort((a, b) => (b.event_year || 0) - (a.event_year || 0));
   return selected;
+}
+
+/**
+ * Fetch ALL events for a specific date (for comprehensive text caption / body)
+ * বর্তমান সালের ঘটনা আগে থাকবে (ORDER BY event_year DESC)
+ */
+function getAllEventsForDate(month, day) {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT * FROM royal_history_items 
+    WHERE is_active = 1 AND target_month = ? AND target_day = ?
+    ORDER BY event_year DESC
+  `).all(month, day);
+  return rows || [];
 }
 
 /**
@@ -308,7 +324,7 @@ function deleteItem(id) {
  */
 function exportToJson() {
   const db = getDb();
-  const items = db.prepare('SELECT * FROM royal_history_items WHERE is_active = 1 ORDER BY target_month ASC, target_day ASC, event_year ASC').all();
+  const items = db.prepare('SELECT * FROM royal_history_items WHERE is_active = 1 ORDER BY target_month ASC, target_day ASC, event_year DESC').all();
   fs.writeFileSync(itemsJsonPath, JSON.stringify(items, null, 2), 'utf8');
 }
 
@@ -321,6 +337,7 @@ module.exports = {
   getItemByUid,
   getTodayHistoryItem,
   getTodayHistoryEvents,
+  getAllEventsForDate,
   markItemUsed,
   markItemsUsed,
   recordGeneration,

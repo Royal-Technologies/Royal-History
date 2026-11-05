@@ -360,9 +360,7 @@
   }
 
   function buildItemCaption(item) {
-    let catLabel = '📜 ইতিহাসের এই দিনে';
-    if (item.category === 'bangladesh') catLabel = '🇧🇩 বাংলাদেশ ইতিহাস';
-    else if (item.category === 'world') catLabel = '🌍 বিশ্ব ইতিহাস';
+    const catLabel = (item.category === 'bangladesh') ? '🇧🇩 বাংলাদেশ ইতিহাস' : '🌍 বিশ্ব ইতিহাস';
 
     const yearBn = toBengaliDigits(item.event_year);
 
@@ -373,11 +371,7 @@
 
 “${item.summary || item.description}”
 
-${item.description && item.description !== item.summary ? `📖 বিস্তারিত ইতিহাস:\n${item.description}\n\n` : ''}${item.significance ? `✨ ঐতিহাসিক তাৎপর্য: ${item.significance}\n` : ''}${item.location ? `📍 স্থান: ${item.location}\n` : ''}📌 তথ্যসূত্র: ${item.reference || 'রয়েল হিস্ট্রি মহাফেজখানা'}
-
-—
-কারিগরি সহায়তায়: Royal Technologies (https://www.royaltechbd.com/)
-ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
+${item.description && item.description !== item.summary ? `📖 বিস্তারিত ইতিহাস:\n${item.description}\n\n` : ''}${item.significance ? `✨ ঐতিহাসিক তাৎপর্য: ${item.significance}\n\n` : ''}${item.location ? `📍 স্থান: ${item.location}\n\n` : ''}ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
 
 #RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #RoyalTechnologies #ইতিহাসেরএইদিনে`;
   }

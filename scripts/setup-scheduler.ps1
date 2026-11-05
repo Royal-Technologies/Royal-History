@@ -3,7 +3,7 @@
 # Royal Technologies (https://www.royaltechbd.com/)
 # ============================================================
 # Run ONCE as Administrator to register daily trigger:
-#   ► প্রতিদিন সকাল ০৬:০০ AM (BST / 00:00 GMT)
+#   ► প্রতিদিন সকাল ০৬:০৫ AM (BST / 00:05 UTC)
 # ============================================================
 
 param(
@@ -44,7 +44,7 @@ if ($GitHubPAT -and -not (Test-Path $PAT_FILE)) {
 }
 
 $triggers = @(
-    @{ Time = "06:00"; Desc = "দৈনিক ইতিহাস (সকাল ০৬:০০ টা BST / 00:00 GMT)" }
+    @{ Time = "06:05"; Desc = "দৈনিক ইতিহাস (সকাল ০৬:০৫ টা BST / 00:05 UTC)" }
 )
 
 foreach ($t in $triggers) {

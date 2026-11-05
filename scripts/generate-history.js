@@ -84,13 +84,16 @@ if (forcedUid) {
 }
 
 if (events.length === 0) {
-  events = db.getTodayHistoryEvents(currentMonth, currentDay, 3);
+  events = db.getTodayHistoryEvents(currentMonth, currentDay, 4);
 }
 
 if (!events || events.length === 0) {
   console.error('[Error] No history events found in the database. Please run npm run init-db first.');
   process.exit(1);
 }
+
+// বর্তমান সালের ঘটনা আগে থাকবে (Descending Order by Year)
+events.sort((a, b) => (b.event_year || 0) - (a.event_year || 0));
 
 console.log(`[Royal History] Selected ${events.length} Events for today's card:`);
 events.forEach((ev, i) => {
@@ -115,7 +118,7 @@ if (!selectedTheme) {
 console.log(`[Royal History] Applied Layout: ${selectedLayout}`);
 console.log(`[Royal History] Applied Theme: ${selectedTheme}`);
 
-// ── 6. Render Card Canvas (Multi-Event Layout) ──
+// ── 6. Render Card Canvas (Multi-Event Layout - Top 4 Events) ──
 const canvas = createCanvas(1080, 1080);
 const dateText = events[0].event_date || `${currentDay} তারিখ`;
 HistoryCardTemplate.renderCard(canvas, { events, dateText }, { layout: selectedLayout, theme: selectedTheme, dateText });
@@ -139,14 +142,23 @@ const archivePngPath = path.join(cardsDir, `${cardId}.png`);
 
 const buffer = canvas.toBuffer('image/png');
 
-// ── 8. Build Formatted Multi-Event Social Media Caption ──
+// ── 8. Build Formatted Social Media Caption with ALL Events of the Day ──
 const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 function toBn(n) { return String(n).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]); }
 
+// Fetch ALL events of the day for the full body text/caption
+let allDayEvents = db.getAllEventsForDate(currentMonth, currentDay);
+if (!allDayEvents || allDayEvents.length === 0) {
+  allDayEvents = events;
+}
+// বর্তমান সালের ঘটনা আগে থাকবে (সবচেয়ে সাম্প্রতিক ঘটনা উপরে)
+allDayEvents.sort((a, b) => (b.event_year || 0) - (a.event_year || 0));
+
+console.log(`[Royal History] Caption includes ALL ${allDayEvents.length} events of today.`);
+
 let eventsCaptionText = '';
-events.forEach(ev => {
-  let catBadge = '📜 বিশ্ব ইতিহাস';
-  if (ev.category === 'bangladesh') catBadge = '🇧🇩 বাংলাদেশ ইতিহাস';
+allDayEvents.forEach((ev, idx) => {
+  const catBadge = (ev.category === 'bangladesh') ? '🇧🇩 বাংলাদেশ ইতিহাস' : '🌍 বিশ্ব ইতিহাস';
 
   eventsCaptionText += `🔹 ${ev.event_year_display || `${toBn(ev.event_year)} খ্রিস্টাব্দ`} [${catBadge}]:
 ⭐ ${ev.title}
@@ -159,10 +171,6 @@ const caption = `🏛️ Royal History — ইতিহাসের এই দ�
 
 ${eventsCaptionText.trim()}
 
-📌 তথ্যসূত্র: রয়েল হিস্ট্রি আর্কাইভ ও জাতীয় মহাফেজখানা
-
-—
-কারিগরি সহায়তায়: Royal Technologies (https://www.royaltechbd.com/)
 ওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/
 
 #RoyalTechnologies #RoyalHistory #ItihasherEiDine #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে`;
