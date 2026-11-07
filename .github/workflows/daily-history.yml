@@ -2,7 +2,9 @@ name: Daily Royal History Generation & Publishing
 
 on:
   schedule:
-    # 00:05 UTC = সকাল ০৬:০৫ বাংলাদেশ সময় (BST)
+    # 18:05 UTC = রাত ১২:০৫ বাংলাদেশ সময় (BST - মধ্যরাত / দিনের শুরুতেই প্রস্তুত)
+    - cron: '5 18 * * *'
+    # 00:05 UTC = সকাল ০৬:০৫ বাংলাদেশ সময় (BST - প্রাতঃকালীন ব্যাকআপ)
     - cron: '5 0 * * *'
   workflow_dispatch:
     inputs:

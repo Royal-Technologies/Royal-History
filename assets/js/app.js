@@ -300,15 +300,25 @@
     }
 
     grid.innerHTML = items.map((item, index) => {
-      let catBadgeClass = 'badge-gold';
-      let catLabel = '📜 ইতিহাসের এই দিনে';
+      let catBadgeClass = 'badge-blue';
+      let catLabel = '🌍 বিশ্ব ইতিহাস';
       if (item.category === 'bangladesh') {
         catBadgeClass = 'badge-emerald';
         catLabel = '🇧🇩 বাংলাদেশ';
       } else if (item.category === 'world') {
         catBadgeClass = 'badge-blue';
-        catLabel = '🌍 বিশ্ব';
+        catLabel = '🌍 বিশ্ব ইতিহাস';
       }
+
+      const typeLabels = {
+        event: 'ঐতিহাসিক ঘটনা',
+        milestone: 'মাইলফলক',
+        birth: 'জন্মবার্ষিকী',
+        demise: 'প্রয়াণ',
+        discovery: 'বিজ্ঞান ও আবিষ্কার',
+        treaty: 'ঐতিহাসিক চুক্তি'
+      };
+      const typeLabel = typeLabels[item.event_type] || 'ঐতিহাসিক অধ্যায়';
 
       const yearBn = toBengaliDigits(item.event_year);
       const dateText = item.event_date || `${item.target_day} তারিখ`;
@@ -318,7 +328,7 @@
           <div class="history-card-header">
             <div style="display:flex; align-items:center; gap:8px;">
               <span class="card-num">#${toBengaliDigits(index + 1)}</span>
-              <span class="badge ${catBadgeClass}">${catLabel}</span>
+              <span class="badge ${catBadgeClass}">${catLabel} • ${typeLabel}</span>
             </div>
             <span class="history-year-tag">${yearBn}</span>
           </div>
