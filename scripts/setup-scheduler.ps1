@@ -2,20 +2,13 @@
 # Royal History — Windows Task Scheduler Setup
 # Royal Technologies (https://www.royaltechbd.com/)
 # ============================================================
-# Run ONCE as Administrator to register daily trigger:
-#   ► প্রতিদিন সকাল ০৬:০৫ AM (BST / 00:05 UTC)
+# Run ONCE to register daily trigger:
+#   ► প্রতিদিন রাত ১২:০৫ AM (BST / 18:05 UTC)
 # ============================================================
 
 param(
     [string]$GitHubPAT = ""
 )
-
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
-    [Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "❌ Administrator হিসেবে চালাতে হবে!" -ForegroundColor Red
-    Write-Host "   PowerShell -এ Right-click → 'Run as Administrator'" -ForegroundColor Yellow
-    exit 1
-}
 
 $SCRIPT_DIR  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $TRIGGER_PS1 = Join-Path $SCRIPT_DIR "trigger-history.ps1"
@@ -29,22 +22,8 @@ Write-Host "║   Royal Technologies (royaltechbd.com)       ║" -ForegroundCol
 Write-Host "╚══════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 
-if (-not $GitHubPAT) {
-    if (Test-Path $PAT_FILE) {
-        $GitHubPAT = Get-Content $PAT_FILE -Raw | ForEach-Object { $_.Trim() }
-        Write-Host "✔ বিদ্যমান PAT ফাইল পাওয়া গেছে।" -ForegroundColor Green
-    } else {
-        Write-Host "🔑 GitHub PAT দেওয়া না থাকলে সরাসরি লোকাল জেনারেটর রান হবে।" -ForegroundColor Gray
-    }
-}
-
-if ($GitHubPAT -and -not (Test-Path $PAT_FILE)) {
-    Set-Content -Path $PAT_FILE -Value $GitHubPAT -NoNewline
-    Write-Host "✔ PAT সংরক্ষিত হয়েছে: scripts/.pat" -ForegroundColor Green
-}
-
 $triggers = @(
-    @{ Time = "06:05"; Desc = "দৈনিক ইতিহাস (সকাল ০৬:০৫ টা BST / 00:05 UTC)" }
+    @{ Time = "00:05"; Desc = "দৈনিক ইতিহাস (রাত ১২:০৫ টা BST / 18:05 UTC)" }
 )
 
 foreach ($t in $triggers) {
