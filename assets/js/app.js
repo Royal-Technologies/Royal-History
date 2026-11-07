@@ -96,8 +96,9 @@
     const btnCopyCaption = document.getElementById('btnCopyCaption');
     const btnShareToday = document.getElementById('btnShareToday');
 
+    const cardSrc = data.cardId ? 'cards/' + data.cardId + '.png' : 'cards/today.png';
     if (todayImg) {
-      todayImg.src = 'cards/today.png?t=' + Date.now();
+      todayImg.src = cardSrc + '?t=' + Date.now();
     }
 
     const hasMultiEvents = Array.isArray(data.events) && data.events.length > 0;
@@ -152,7 +153,7 @@
     }
 
     if (btnDownloadToday) {
-      btnDownloadToday.href = 'cards/today.png';
+      btnDownloadToday.href = data.cardId ? 'cards/' + data.cardId + '.png' : 'cards/today.png';
       btnDownloadToday.download = `RoyalHistory-${data.cardId || 'Today'}.png`;
     }
 
