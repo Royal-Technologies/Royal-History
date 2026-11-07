@@ -2,8 +2,10 @@ name: Daily Royal History Generation & Publishing
 
 on:
   schedule:
-    # 18:05 UTC = প্রতিদিন রাত ১২:০৫ বাংলাদেশ সময় (BST - মধ্যরাত / নতুন দিনের শুরুতে)
+    # ১. প্রধান রান: প্রতিদিন রাত ১২:০৫ বাংলাদেশ সময় (18:05 UTC) — নতুন দিন শুরু হতেই রেডি
     - cron: '5 18 * * *'
+    # ২. সেফটি চেক: প্রতিদিন ভোর ০৫:০০ বাংলাদেশ সময় (23:00 UTC) — সকাল ৬টার ১ ঘণ্টা আগে নিশ্চিতকরণ
+    - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       category:
@@ -61,7 +63,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add cards/ database/
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No changes to commit (already up to date)."
           else
             git commit -m "chore(daily): publish today's history card $(date +'%Y-%m-%d') [skip ci]"
             git push
