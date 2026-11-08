@@ -120,7 +120,12 @@ console.log(`[Royal History] Applied Theme: ${selectedTheme}`);
 
 // ── 6. Render Card Canvas (Multi-Event Layout - Top 4 Events) ──
 const canvas = createCanvas(1080, 1080);
-const dateText = events[0].event_date || `${currentDay} তারিখ`;
+const bnMonths = ['', 'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+function toBn(num) {
+  return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
+}
+const dateText = `${toBn(currentDay)} ${bnMonths[currentMonth] || 'নভেম্বর'}`;
 HistoryCardTemplate.renderCard(canvas, { events, dateText }, { layout: selectedLayout, theme: selectedTheme, dateText });
 
 // ── 7. Generate Unique Card ID and Paths ──
@@ -143,9 +148,6 @@ const archivePngPath = path.join(cardsDir, `${cardId}.png`);
 const buffer = canvas.toBuffer('image/png');
 
 // ── 8. Build Formatted Social Media Caption with ALL Events of the Day ──
-const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-function toBn(n) { return String(n).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]); }
-
 // Fetch ALL events of the day for the full body text/caption
 let allDayEvents = db.getAllEventsForDate(currentMonth, currentDay);
 if (!allDayEvents || allDayEvents.length === 0) {

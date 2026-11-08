@@ -182,24 +182,9 @@ function getTodayHistoryEvents(month, day, limit = 4) {
   }
 
   const selected = events ? [...events] : [];
-  if (selected.length < limit) {
-    const fallbacks = db.prepare(`
-      SELECT * FROM royal_history_items 
-      WHERE is_active = 1
-      ORDER BY used_count ASC, last_used_at ASC, priority DESC
-    `).all();
-
-    for (const fb of fallbacks) {
-      if (selected.length >= limit) break;
-      if (!selected.some(s => s.id === fb.id)) {
-        selected.push(fb);
-      }
-    }
-  }
-
   // বর্তমান সালের ঘটনা আগে থাকবে (Descending Order by Year)
   selected.sort((a, b) => (b.event_year || 0) - (a.event_year || 0));
-  return selected;
+  return selected.slice(0, limit);
 }
 
 /**
