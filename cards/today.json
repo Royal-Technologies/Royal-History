@@ -1,5 +1,5 @@
 {
-  "cardId": "RH-20261117-45XU",
+  "cardId": "RH-20261117-TFSF",
   "dateText": "১৭ নভেম্বর",
   "eventCount": 2,
   "events": [
@@ -21,11 +21,11 @@
       "reference": "ইউনেস্কো প্যারিস ডিক্লারেশন",
       "tags": "বাংলাদেশ,ইতিহাস,মাইলফলক,ঐতিহ্য",
       "priority": 2,
-      "used_count": 0,
-      "last_used_at": null,
+      "used_count": 1,
+      "last_used_at": "2026-11-17T01:47:10.191Z",
       "is_active": 1,
       "created_at": "2026-11-05 16:34:01",
-      "updated_at": "2026-11-05 16:34:01"
+      "updated_at": "2026-11-17T01:47:10.191Z"
     },
     {
       "id": 3366,
@@ -45,11 +45,11 @@
       "reference": "সুয়েজ ক্যানেল অথরিটি ও এনসাইক্লোপিডিয়া ব্রিটানিকা",
       "tags": "সুয়েজ_খাল,মিশর,সমুদ্র_বাণিজ্য,প্রকৌশল",
       "priority": 3,
-      "used_count": 0,
-      "last_used_at": null,
+      "used_count": 1,
+      "last_used_at": "2026-11-17T01:47:10.191Z",
       "is_active": 1,
       "created_at": "2026-11-08 05:07:05",
-      "updated_at": "2026-11-08 05:07:05"
+      "updated_at": "2026-11-17T01:47:10.191Z"
     }
   ],
   "uid": "RH-BD-1117-064",
@@ -63,6 +63,6 @@
   "theme": "royal-emerald",
   "caption": "🏛️ Royal History — ইতিহাসের এই দিনে\n📅 ১৭ নভেম্বর — ইতিহাসের পাতায় আজকের স্মরণীয় ঘটনাবলী\n\n🔹 ১৯৯৯ খ্রিস্টাব্দ [🇧🇩 বাংলাদেশ ইতিহাস]:\n⭐ ইউনেস্কোর সাধারণ সম্মেলনে ২১শে ফেব্রুয়ারিকে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে ঐতিহাসিক স্বীকৃতি\n“১৯৯৯ সালের ১৭ নভেম্বর: ইউনেস্কোর সাধারণ সম্মেলনে ২১শে ফেব্রুয়ারিকে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে ঐতিহাসিক স্বীকৃতি।”\n✨ তাৎপর্য: বাঙালির জাতীয় চেতনা, আত্মনিয়ন্ত্রণ ও মুক্তিসংগ্রামের উজ্জ্বল মাইলফলক।\n\n🔹 ১৮৬৯ খ্রিস্টাব্দ [🌍 বিশ্ব ইতিহাস]:\n⭐ ভূমধ্যসাগর ও লোহিত সাগরকে যুক্ত করে আন্তর্জাতিক বাণিজ্যের পথ উন্মোচনে 'সুয়েজ খাল' উদ্বোধন\n“১৮৬৯ সালের ১৭ নভেম্বর: মিশরের পোর্ট সাঈদে জমকালো অনুষ্ঠানের মাধ্যমে ফরাসি প্রকৌশলী ফার্দিনান্দ দে লেসেপসের তৈরি ঐতিহাসিক সুয়েজ খাল উন্মুক্ত করা হয়।”\n✨ তাৎপর্য: বিশ্ব সমুদ্র বাণিজ্য ও ভৌগোলিক দূরত্বের ইতিহাসে সর্বকালের সবচেয়ে প্রভাবশালী খাল নির্মাণ।\n\nওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/\n\n#RoyalTechnologies #RoyalHistory #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে",
   "imageUrl": "https://royal-technologies.github.io/Royal-History/cards/today.png",
-  "archiveUrl": "https://royal-technologies.github.io/Royal-History/cards/RH-20261117-45XU.png",
-  "generatedAt": "2026-11-17T01:47:10.191Z"
+  "archiveUrl": "https://royal-technologies.github.io/Royal-History/cards/RH-20261117-TFSF.png",
+  "generatedAt": "2026-11-17T04:55:20.748Z"
 }
