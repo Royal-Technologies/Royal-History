@@ -137,6 +137,7 @@ if (!fs.existsSync(cardsDir)) {
 const yStr = String(currentYear);
 const mStr = String(currentMonth).padStart(2, '0');
 const dStr = String(currentDay).padStart(2, '0');
+const dateIso = `${yStr}-${mStr}-${dStr}`;
 const randStr = Math.random().toString(36).substring(2, 6).toUpperCase();
 const cardId = `RH-${yStr}${mStr}${dStr}-${randStr}`;
 
@@ -178,6 +179,7 @@ ${eventsCaptionText.trim()}
 #RoyalTechnologies #RoyalHistory #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে`;
 
 const metadata = {
+  date: dateIso,
   cardId: cardId,
   dateText: dateText,
   eventCount: events.length,
