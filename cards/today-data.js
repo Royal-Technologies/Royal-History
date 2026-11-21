@@ -1,6 +1,6 @@
 window.ROYAL_TODAY_HISTORY = {
   "date": "2026-11-21",
-  "cardId": "RH-20261121-936X",
+  "cardId": "RH-20261121-5QO3",
   "dateText": "২১ নভেম্বর",
   "eventCount": 2,
   "events": [
@@ -22,11 +22,11 @@ window.ROYAL_TODAY_HISTORY = {
       "reference": "সশস্ত্র বাহিনী বিভাগ",
       "tags": "বাংলাদেশ,ইতিহাস,মাইলফলক,ঐতিহ্য",
       "priority": 2,
-      "used_count": 0,
-      "last_used_at": null,
+      "used_count": 1,
+      "last_used_at": "2026-11-20T23:52:05.806Z",
       "is_active": 1,
       "created_at": "2026-11-05 16:34:01",
-      "updated_at": "2026-11-05 16:34:01"
+      "updated_at": "2026-11-20T23:52:05.806Z"
     },
     {
       "id": 3367,
@@ -46,11 +46,11 @@ window.ROYAL_TODAY_HISTORY = {
       "reference": "ফরাসি বিজ্ঞান একাডেমি ও স্মিথসোনিয়ান এয়ার মিউজিয়াম",
       "tags": "হট_এয়ার_বেলুন,মন্টগলফিয়ার,এভিয়েশন,প্রথম_উড্ডয়ন",
       "priority": 3,
-      "used_count": 0,
-      "last_used_at": null,
+      "used_count": 1,
+      "last_used_at": "2026-11-20T23:52:05.806Z",
       "is_active": 1,
       "created_at": "2026-11-08 05:07:05",
-      "updated_at": "2026-11-08 05:07:05"
+      "updated_at": "2026-11-20T23:52:05.806Z"
     }
   ],
   "uid": "RH-BD-1121-065",
@@ -64,6 +64,6 @@ window.ROYAL_TODAY_HISTORY = {
   "theme": "ottoman-turquoise",
   "caption": "🏛️ Royal History — ইতিহাসের এই দিনে\n📅 ২১ নভেম্বর — ইতিহাসের পাতায় আজকের স্মরণীয় ঘটনাবলী\n\n🔹 ১৯৭১ খ্রিস্টাব্দ [🇧🇩 বাংলাদেশ ইতিহাস]:\n⭐ সেনা, নৌ ও বিমান বাহিনীর সমন্বয়ে মুক্তিবাহিনী ও মিত্রবাহিনীর সম্মিলিত আক্রমণ — সশস্ত্র বাহিনী দিবস\n“১৯৭১ সালের ২১ নভেম্বর: সেনা, নৌ ও বিমান বাহিনীর সমন্বয়ে মুক্তিবাহিনী ও মিত্রবাহিনীর সম্মিলিত আক্রমণ — সশস্ত্র বাহিনী দিবস।”\n✨ তাৎপর্য: বাঙালির জাতীয় চেতনা, আত্মনিয়ন্ত্রণ ও মুক্তিসংগ্রামের উজ্জ্বল মাইলফলক।\n\n🔹 ১৭৮৩ খ্রিস্টাব্দ [🌍 বিশ্ব ইতিহাস]:\n⭐ মন্টগলফিয়ার ভাইদের হট এয়ার বেলুনে চড়ে প্যারিসে মানব ইতিহাসের প্রথম সফল মুক্ত মানব উড্ডয়ন\n“১৭৮৩ সালের ২১ নভেম্বর: প্যারিসের আকাশে জঁ-ফ্রাঁসোয়া পিলেত্রে দে রোজিয়ার এবং ফ্রাঁসোয়া লরেন্ট গরম বাতাসের বেলুনে চড়ে ২৫ মিনিট আকাশে উড়ে ৫ মাইল পথ পাড়ি দেন।”\n✨ তাৎপর্য: মানব ইতিহাসের সর্বপ্রথম সফল মুক্ত আকাশ উড্ডয়নের অবিস্মরণীয় ঐতিহাসিক ঘটনা।\n\nওয়েবসাইট ও পূর্ণাঙ্গ আর্কাইভ: https://royal-technologies.github.io/Royal-History/\n\n#RoyalTechnologies #RoyalHistory #OnThisDay #BangladeshHistory #WorldHistory #TodayInHistory #ইতিহাসেরএইদিনে",
   "imageUrl": "https://royal-technologies.github.io/Royal-History/cards/today.png",
-  "archiveUrl": "https://royal-technologies.github.io/Royal-History/cards/RH-20261121-936X.png",
-  "generatedAt": "2026-11-20T23:52:05.806Z"
+  "archiveUrl": "https://royal-technologies.github.io/Royal-History/cards/RH-20261121-5QO3.png",
+  "generatedAt": "2026-11-21T03:42:27.570Z"
 };
